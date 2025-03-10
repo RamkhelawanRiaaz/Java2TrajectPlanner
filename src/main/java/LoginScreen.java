@@ -41,7 +41,7 @@ public class LoginScreen {
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Top panel for the university logo
+
         JPanel topPanel = new JPanel(new BorderLayout()); // Gebruik BorderLayout voor betere controle
         topPanel.setOpaque(false);
 
