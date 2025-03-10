@@ -45,12 +45,12 @@ public class LoginScreen {
         topPanel.setOpaque(false);
 
         // Logo aanpassen
-        ImageIcon logoIcon = new ImageIcon(Main.class.getResource("/unasat_logo.png"));
+        //ImageIcon logoIcon = new ImageIcon(Main.class.getResource("/unasat_logo.png"));
 
 
-        JLabel logoLabel = new JLabel(logoIcon);
-        logoLabel.setHorizontalAlignment(SwingConstants.LEFT); // Logo links uitlijnen
-        topPanel.add(logoLabel, BorderLayout.WEST); // Plaats het logo in het westen (links)
+        //JLabel logoLabel = new JLabel(logoIcon);
+        //logoLabel.setHorizontalAlignment(SwingConstants.LEFT); // Logo links uitlijnen
+        //topPanel.add(logoLabel, BorderLayout.WEST); // Plaats het logo in het westen (links)
         mainPanel.add(topPanel, BorderLayout.NORTH);
 
         // Center panel for title and input fields
