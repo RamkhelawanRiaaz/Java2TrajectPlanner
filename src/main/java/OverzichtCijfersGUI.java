@@ -19,20 +19,20 @@ public class OverzichtCijfersGUI {
         frame.getContentPane().setBackground(new Color(30, 30, 30));  // Donkere achtergrond
 
         // Kolomnamen voor de tabel
-        String[] columnNames = {"ID", "Student ID", "Studentnummer", "Volledige Naam", "Exam ID", "Cursusnaam", "Cijfer", "Datum"};
+        String[] columnNames = {"ID", "Studentnummer", "Volledige Naam",  "Cursusnaam", "Cijfer", "Datum"};
 
         // Data voor de tabel
         Object[][] data = new Object[grades.size()][8];
         for (int i = 0; i < grades.size(); i++) {
             Grade grade = grades.get(i);
-            data[i][0] = grade.getId();
-            data[i][1] = grade.getStudent_id();
-            data[i][2] = grade.getStudent_number();
-            data[i][3] = grade.getStudent_full_name();  // Volledige naam
-            data[i][4] = grade.getExam_id();
-            data[i][5] = grade.getCourse_name();
-            data[i][6] = grade.getScore_value();
-            data[i][7] = grade.getScore_datetime();
+//            data[i][0] = grade.getId();
+            data[i][0] = grade.getStudent_id();
+            data[i][1] = grade.getStudent_number();
+            data[i][2] = grade.getStudent_full_name();  // Volledige naam
+//            data[i][4] = grade.getExam_id();
+            data[i][3] = grade.getCourse_name();
+            data[i][4] = grade.getScore_value();
+            data[i][5] = grade.getScore_datetime();
         }
 
         // Maak de tabel
