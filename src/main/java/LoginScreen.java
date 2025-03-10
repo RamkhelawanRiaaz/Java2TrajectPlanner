@@ -41,14 +41,13 @@ public class LoginScreen {
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-
         JPanel topPanel = new JPanel(new BorderLayout()); // Gebruik BorderLayout voor betere controle
         topPanel.setOpaque(false);
 
         // Logo aanpassen
-        ImageIcon logoIcon = new ImageIcon("C:/Users/USER-ADEK004759/Downloads/rsz_unasat_2021_full_name-2 (2).png"); // Update het pad naar je logo
-//        Image img = logoIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH); // Maak het logo groter (150x150)
-//        logoIcon = new ImageIcon(img);
+        ImageIcon logoIcon = new ImageIcon(Main.class.getResource("/unasat_logo.png"));
+
+
         JLabel logoLabel = new JLabel(logoIcon);
         logoLabel.setHorizontalAlignment(SwingConstants.LEFT); // Logo links uitlijnen
         topPanel.add(logoLabel, BorderLayout.WEST); // Plaats het logo in het westen (links)
