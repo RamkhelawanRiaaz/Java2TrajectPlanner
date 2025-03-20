@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,7 +15,7 @@ public class AddStudentGUI {
     private JTextField nameField, studentNumberField, emailField, addressField, phoneField, cohortField;
     private JComboBox<String> genderComboBox;
     private JDatePickerImpl datePicker;
-    private JButton saveButton, cancelButton;
+    private JButton saveButton, cancelButton, clearButton;
 
     public AddStudentGUI() {
         frame = new JFrame("Student Toevoegen");
@@ -145,33 +146,52 @@ public class AddStudentGUI {
         gbc.gridx = 1;
         mainPanel.add(cohortField, gbc);
 
+        clearButton = new JButton("Clear");
+        styleButton(clearButton, Color.GRAY);  // Gray
+        clearButton.addActionListener(e -> clearFields());
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.gridwidth = 2;
+        mainPanel.add(clearButton, gbc);
+
+
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 20, 0));
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 100, 20, 100));
 
         saveButton = new JButton("Opslaan");
-        saveButton.setFont(new Font("Arial", Font.BOLD, 20));
-        saveButton.setBackground(new Color(211, 85, 0)); // Oranje achtergrond
-        saveButton.setForeground(Color.WHITE);
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveStudent();
-            }
-        });
+        styleButton(saveButton, new Color(211, 85, 0));  // Orange
+        saveButton.addActionListener(e -> saveStudent());
         buttonPanel.add(saveButton);
 
         cancelButton = new JButton("Annuleren");
-        cancelButton.setFont(new Font("Arial", Font.BOLD, 20));
-        cancelButton.setBackground(Color.RED);
-        cancelButton.setForeground(Color.WHITE);
+        cancelButton = new JButton("Annuleren");
+        styleButton(cancelButton, Color.RED);  // Red
         cancelButton.addActionListener(e -> frame.dispose());
         buttonPanel.add(cancelButton);
 
         frame.add(mainPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
-
         frame.setVisible(true);
+    }
+
+    private void styleButton(JButton button, Color color) {
+        button.setFont(new Font("Arial", Font.BOLD,20));
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(new LineBorder(Color.BLACK,0));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(color.darker());
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(color);
+            }
+        });
     }
 
     private void saveStudent() {
@@ -193,6 +213,16 @@ public class AddStudentGUI {
             JOptionPane.showMessageDialog(frame, "Vul alle velden in!", "Fout", JOptionPane.ERROR_MESSAGE);
         }
     }
+         private void clearFields() {
+            nameField.setText("");
+            studentNumberField.setText("");
+            emailField.setText("");
+            addressField.setText("");
+            phoneField.setText("");
+            cohortField.setText("");
+            genderComboBox.setSelectedIndex(0);
+            datePicker.getModel().setValue(null);
+         }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AddStudentGUI::new);
