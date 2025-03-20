@@ -58,7 +58,7 @@ public class OverzichtStudentenGUI {
         frame.add(searchPanel, BorderLayout.NORTH);
 
         // Kolomnamen voor de tabel
-        String[] columnNames = {"ID", "Voornaam", "Achternaam", "Studentnummer", "Geslacht", "Geboortedatum", "Admin"};
+        String[] columnNames = {"ID", "Voornaam", "Achternaam", "Studentnummer", "Geslacht", "Geboortedatum"};
 
         // Data voor de tabel
         Object[][] data = new Object[students.size()][7];
@@ -70,7 +70,7 @@ public class OverzichtStudentenGUI {
             data[i][3] = student.getStudentnumber();
             data[i][4] = student.getGender();
             data[i][5] = student.getBirthdate();
-            data[i][6] = student.isAdmin() ? "Ja" : "Nee";
+
         }
 
         // Maak de tabel
