@@ -6,6 +6,7 @@ import java.util.List;
 
 public class AdminDashboard {
     private JFrame frame;
+    private API API; // RS
 
     public AdminDashboard() {
         // Controleer of de gebruiker ingelogd is als admin
@@ -14,6 +15,7 @@ public class AdminDashboard {
             return;
         }
 
+        API = new API(); // RS
         frame = new JFrame("Unasat Studenten Administratie");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -25,12 +27,17 @@ public class AdminDashboard {
         topBarPanel.setOpaque(false);
         topBarPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Ruimte rondom
 
+        // West panel
+        JPanel westPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
+        westPanel.setBackground(new Color(30, 30, 30));
+
         // Sluitenknop (linksboven)
         JButton closeButton = createStyledButton("Sluiten", new Color(255, 0, 0), Color.WHITE); // Rood
         closeButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
         closeButton.setPreferredSize(new Dimension(80, 25)); // Kleinere knop
         closeButton.addActionListener(e -> confirmExit()); // Sluiten functionaliteit
-        topBarPanel.add(closeButton, BorderLayout.WEST);
+        westPanel.add(closeButton);
+        topBarPanel.add(westPanel, BorderLayout.WEST);
 
         // Titel in het midden (Oranje)
         JLabel titleLabel = new JLabel("Studenten Administratie", SwingConstants.CENTER);
@@ -45,13 +52,33 @@ public class AdminDashboard {
         logoutButton.addActionListener(e -> logout()); // Uitloggen functionaliteit
         topBarPanel.add(logoutButton, BorderLayout.EAST);
 
+        // Uitleg button
+        JButton uitlegButton = new JButton("Hulp en Uitleg");
+        uitlegButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                explain(); }});
+        westPanel.add(uitlegButton);
+        topBarPanel.add(westPanel, BorderLayout.WEST);
+
         frame.add(topBarPanel, BorderLayout.NORTH);
+
+//        frame.add(topBarPanel, BorderLayout.NORTH);
+//        frame.setVisible(true);
 
         // Hoofdpaneel voor knoppen
         JPanel mainButtonPanel = new JPanel();
         mainButtonPanel.setLayout(new BoxLayout(mainButtonPanel, BoxLayout.Y_AXIS));
         mainButtonPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Kleinere marges
         mainButtonPanel.setOpaque(false);
+
+//        // Uitleg panel
+//        JPanel panel = new JPanel();
+//        panel.setLayout(new BorderLayout());
+//
+//        outputArea = new JTextArea();
+//        outputArea.setEditable(false);
+//        panel.add(new JScrollPane(outputArea), BorderLayout.CENTER);
 
         // Tekst "Toevoegen" (links)
         JLabel toevoegenLabel = new JLabel("Toevoegen");
@@ -157,6 +184,19 @@ public class AdminDashboard {
         frame.add(mainButtonPanel, BorderLayout.CENTER);
 
         frame.setVisible(true);
+    }
+
+    public void explain() { // RS
+        String uitleg = "Welkom bij de Studenten en Cijfers Administratie applicatie!\n";
+        uitleg += "Hier vindt u een overzicht van de beschikbare functionaliteiten.\n\n";
+        uitleg += "1. Studenten toevoegen: Klik op \"Student Toevoegen\" om een nieuw student toe te voegen.\n";
+        uitleg += "2. Vakken toevoegen: Klik op \"Vak Toevoegen\" om een nieuw vak toe te voegen.\n";
+        uitleg += "3. Cijfers toevoegen: Klik op \"Cijfer Toevoegen\" om een nieuwe cijfer toe te voegen.\n";
+        uitleg += "4. Overzichten: Klik op een van de knoppen in de bovenste rij om een overzicht te openen.\n";
+        uitleg += "5. Uitloggen: Klik op \"Uitloggen\" om u uit te loggen.\n";
+        uitleg += "6. Sluiten: Klik op \"Sluiten\" om het programma af te sluiten.\n";
+        uitleg += "\n\nDank voor het gebruiken van deze applicatie.";
+        JOptionPane.showMessageDialog(frame, uitleg, "Uitleg", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JPanel createButtonPanel() {
