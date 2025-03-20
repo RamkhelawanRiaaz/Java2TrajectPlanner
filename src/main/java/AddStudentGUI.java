@@ -147,11 +147,13 @@ public class AddStudentGUI {
         mainPanel.add(cohortField, gbc);
 
         clearButton = new JButton("Clear");
+        clearButton.setFont(new Font("Arial", Font.BOLD, 20));
         styleButton(clearButton, Color.GRAY);  // Gray
         clearButton.addActionListener(e -> clearFields());
         gbc.gridx = 0;
         gbc.gridy = 8;
-        gbc.gridwidth = 2;
+        gbc.gridwidth = 1;
+        clearButton.setPreferredSize(new Dimension(120, 25));
         mainPanel.add(clearButton, gbc);
 
 
@@ -160,12 +162,13 @@ public class AddStudentGUI {
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 100, 20, 100));
 
         saveButton = new JButton("Opslaan");
+        saveButton.setFont(new Font("Arial", Font.BOLD, 20));
         styleButton(saveButton, new Color(211, 85, 0));  // Orange
         saveButton.addActionListener(e -> saveStudent());
         buttonPanel.add(saveButton);
 
         cancelButton = new JButton("Annuleren");
-        cancelButton = new JButton("Annuleren");
+        cancelButton.setFont(new Font("Arial", Font.BOLD, 20));
         styleButton(cancelButton, Color.RED);  // Red
         cancelButton.addActionListener(e -> frame.dispose());
         buttonPanel.add(cancelButton);
@@ -177,6 +180,7 @@ public class AddStudentGUI {
 
     private void styleButton(JButton button, Color color) {
         button.setFont(new Font("Arial", Font.BOLD,20));
+        button.setPreferredSize(new Dimension(100, 30));
         button.setBackground(color);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
