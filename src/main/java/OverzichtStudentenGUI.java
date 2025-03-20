@@ -10,7 +10,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -150,32 +153,86 @@ public class OverzichtStudentenGUI {
 
             // Maak een JDialog in plaats van een JFrame
             JDialog scoresDialog = new JDialog(frame, "Cijfers voor " + studentNumber, true); // true = modal
-            scoresDialog.setSize(500, 400); // Groter venster voor meer informatie
+            scoresDialog.setSize(800, 600); // Groter frame voor betere weergave
             scoresDialog.setLayout(new BorderLayout());
             scoresDialog.getContentPane().setBackground(new Color(30, 30, 30));
 
-            // Maak een panel om de cijfers weer te geven
-            JPanel scoresPanel = new JPanel(new GridLayout(grades.size(), 1, 10, 10));
-            scoresPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-            scoresPanel.setBackground(new Color(30, 30, 30));
+            // Kolomnamen voor de tabel
+            String[] columnNames = {"Vak", "Cijfer", "Semester", "Type"};
 
-            for (Grade grade : grades) {
+            // Data voor de tabel
+            Object[][] data = new Object[grades.size()][4];
+            for (int i = 0; i < grades.size(); i++) {
+                Grade grade = grades.get(i);
+
                 // Zoek het bijbehorende examen op basis van exam_id
                 Exam exam = exams.stream()
                         .filter(e -> e.getId() == Integer.parseInt(grade.getExam_id()))
                         .findFirst()
                         .orElse(null);
 
-                // Voeg semesterinformatie toe aan de weergave
-                String gradeText = grade.getCourse_name() + ": " + grade.getScore_value();
+                // Vul de tabeldata in
+                data[i][0] = grade.getCourse_name(); // Vaknaam
+                data[i][1] = grade.getScore_value(); // Cijfer
                 if (exam != null) {
-                    gradeText += " (Semester: " + exam.getSemester() + ")";
+                    data[i][2] = exam.getSemester(); // Semester
+                    data[i][3] = exam.getType();    // Type (Regulier/Her)
+                } else {
+                    data[i][2] = "Onbekend"; // Als het examen niet gevonden is
+                    data[i][3] = "Onbekend";
                 }
-                JLabel gradeLabel = new JLabel(gradeText);
-                gradeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-                gradeLabel.setForeground(Color.WHITE);
-                gradeLabel.setHorizontalAlignment(JLabel.CENTER);
-                scoresPanel.add(gradeLabel);
+            }
+
+            // Maak de tabel
+            JTable scoresTable = new JTable(data, columnNames);
+            scoresTable.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Modern lettertype
+            scoresTable.setRowHeight(30); // Grotere rijhoogte
+            scoresTable.setBackground(new Color(45, 45, 45)); // Donkere tabelachtergrond
+            scoresTable.setForeground(Color.WHITE); // Witte tekst
+            scoresTable.setGridColor(new Color(80, 80, 80)); // Donkere rasterlijnen
+            scoresTable.setSelectionBackground(new Color(0, 120, 215)); // Blauwe selectiekleur
+            scoresTable.setSelectionForeground(Color.WHITE); // Witte tekst bij selectie
+
+            // Centreer de tekst in de cellen
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+            for (int i = 0; i < scoresTable.getColumnCount(); i++) {
+                scoresTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
+
+            // Pas de header van de tabel aan
+            JTableHeader header = scoresTable.getTableHeader();
+            header.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Vet lettertype voor de header
+            header.setBackground(new Color(0, 120, 215)); // Blauwe headerachtergrond
+            header.setForeground(Color.WHITE); // Witte headertekst
+
+            // Voeg de tabel toe aan een JScrollPane
+            JScrollPane scrollPane = new JScrollPane(scoresTable);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder()); // Verwijder de standaardrand
+            scrollPane.getViewport().setBackground(new Color(30, 30, 30)); // Donkere achtergrond voor de scrollpane
+
+            // Voeg wat padding toe rond de tabel
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // 20px padding
+            panel.setBackground(new Color(30, 30, 30)); // Donkere achtergrond
+            panel.add(scrollPane, BorderLayout.CENTER);
+
+            // Bereken het gemiddelde per vak
+            Map<String, Double> averagePerCourse = calculateAveragePerCourse(studentNumber);
+
+            // Maak een panel om het gemiddelde weer te geven
+            JPanel averagePanel = new JPanel(new GridLayout(averagePerCourse.size(), 1, 10, 10));
+            averagePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            averagePanel.setBackground(new Color(30, 30, 30));
+
+            for (Map.Entry<String, Double> entry : averagePerCourse.entrySet()) {
+                String courseName = entry.getKey();
+                double average = entry.getValue();
+                JLabel averageLabel = new JLabel("Gemiddelde voor " + courseName + ": " + String.format("%.2f", average));
+                averageLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                averageLabel.setForeground(Color.WHITE);
+                averageLabel.setHorizontalAlignment(JLabel.CENTER);
+                averagePanel.add(averageLabel);
             }
 
             // Voeg een "Sluiten"-knop toe
@@ -191,8 +248,9 @@ public class OverzichtStudentenGUI {
             buttonPanel.add(closeButton);
 
             // Voeg de componenten toe aan het dialoogvenster
-            scoresDialog.add(new JScrollPane(scoresPanel), BorderLayout.CENTER); // Voeg een JScrollPane toe voor scrollbaarheid
-            scoresDialog.add(buttonPanel, BorderLayout.SOUTH);
+            scoresDialog.add(panel, BorderLayout.CENTER); // Tabel met cijfers
+            scoresDialog.add(averagePanel, BorderLayout.NORTH); // Gemiddelde per vak
+            scoresDialog.add(buttonPanel, BorderLayout.SOUTH); // Sluiten-knop
 
             // Centreer het dialoogvenster ten opzichte van het hoofdvenster
             scoresDialog.setLocationRelativeTo(frame);
@@ -204,7 +262,6 @@ public class OverzichtStudentenGUI {
             JOptionPane.showMessageDialog(frame, "Geen Cijfers", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private List<Grade> fetchGradesForStudent(String studentNumber) throws Exception {
         // Maak de URL voor het ophalen van de cijfers van een specifieke student
         String apiUrl = API_BASE_URL + "scores/" + studentNumber.replace("/", "-");
@@ -268,6 +325,47 @@ public class OverzichtStudentenGUI {
         Gson gson = new Gson();
         return gson.fromJson(response.toString(), new TypeToken<List<Exam>>() {}.getType());
     }
+
+    private Map<String, Double> calculateAveragePerCourse(String studentNumber) {
+        Map<String, Double> averagePerCourse = new HashMap<>(); // Map om het gemiddelde per vak op te slaan
+        try {
+            // Haal de cijfers op via de API
+            List<Grade> grades = fetchGradesForStudent(studentNumber);
+
+            // Loop door alle cijfers
+            for (Grade grade : grades) {
+                String courseName = grade.getCourse_name();
+                double score = Double.parseDouble(grade.getScore_value());
+
+                // Voeg het cijfer toe aan het vak
+                if (averagePerCourse.containsKey(courseName)) {
+                    // Als het vak al bestaat, tel het cijfer op en verhoog de teller
+                    double currentTotal = averagePerCourse.get(courseName);
+                    averagePerCourse.put(courseName, currentTotal + score);
+                } else {
+                    // Als het vak nog niet bestaat, voeg het toe aan de map
+                    averagePerCourse.put(courseName, score);
+                }
+            }
+
+            // Bereken het gemiddelde per vak
+            for (Map.Entry<String, Double> entry : averagePerCourse.entrySet()) {
+                String courseName = entry.getKey();
+                double totalScore = entry.getValue();
+                long count = grades.stream()
+                        .filter(g -> g.getCourse_name().equals(courseName))
+                        .count();
+                double average = totalScore / count;
+                averagePerCourse.put(courseName, average);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Fout bij het berekenen van het gemiddelde per vak.", "Fout", JOptionPane.ERROR_MESSAGE);
+        }
+        return averagePerCourse;
+    }
+
+
     public static void main(String[] args) {
         try {
             // Haal de studentgegevens op via de API
