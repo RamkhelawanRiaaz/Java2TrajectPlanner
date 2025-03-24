@@ -6,7 +6,8 @@ public class Grade {
     private String course_name;
     private String score_value;
     private String score_datetime;
-    private String student_full_name;  // Nieuw veld voor de volledige naam
+    private String student_full_name;
+    private int semester; // Wijzig dit naar int of String
 
     // Getters en setters
     public String getId() { return id; }
@@ -25,6 +26,8 @@ public class Grade {
     public void setScore_datetime(String score_datetime) { this.score_datetime = score_datetime; }
     public String getStudent_full_name() { return student_full_name; }
     public void setStudent_full_name(String student_full_name) { this.student_full_name = student_full_name; }
+    public int getSemester() { return semester; } // Wijzig dit naar int of String
+    public void setSemester(int semester) { this.semester = semester; } // Wijzig dit naar int of String
 
     @Override
     public String toString() {
@@ -37,6 +40,7 @@ public class Grade {
                 ", score_value='" + score_value + '\'' +
                 ", score_datetime='" + score_datetime + '\'' +
                 ", student_full_name='" + student_full_name + '\'' +
+                ", semester=" + semester +
                 '}';
     }
 }

@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,7 +7,7 @@ import java.awt.event.ActionListener;
 public class AddCijfersGUI {
     private JFrame frame;
     private JTextField studentField, vakField, semesterField, cohortField, cijferField;
-    private JButton saveButton, cancelButton;
+    private JButton saveButton, cancelButton, clearButton;
 
     public AddCijfersGUI() {
         frame = new JFrame("Cijfer Toevoegen");
@@ -93,26 +94,26 @@ public class AddCijfersGUI {
         gbc.gridx = 1;
         mainPanel.add(cijferField, gbc);
 
+        clearButton = new JButton("Clear");
+        styleButton(clearButton, Color.GRAY);  // Gray
+        clearButton.addActionListener(e -> clearFields());
+        gbc.gridx = 0;
+        gbc.gridy = 8;
+        gbc.gridwidth = 1;
+        mainPanel.add(clearButton, gbc);
+
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 20, 0));
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 100, 20, 100));
 
         saveButton = new JButton("Opslaan");
-        saveButton.setFont(new Font("Arial", Font.BOLD, 20));
-        saveButton.setBackground(new Color(211, 85, 0)); // Oranje achtergrond
-        saveButton.setForeground(Color.WHITE);
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveCijfer();
-            }
-        });
+        styleButton(saveButton, new Color(211, 85, 0));  // Orange
+        saveButton.addActionListener(e -> saveCijfer());
         buttonPanel.add(saveButton);
 
         cancelButton = new JButton("Annuleren");
-        cancelButton.setFont(new Font("Arial", Font.BOLD, 20));
-        cancelButton.setBackground(Color.RED);
-        cancelButton.setForeground(Color.WHITE);
+        cancelButton = new JButton("Annuleren");
+        styleButton(cancelButton, Color.RED);  // Red
         cancelButton.addActionListener(e -> frame.dispose());
         buttonPanel.add(cancelButton);
 
@@ -120,6 +121,26 @@ public class AddCijfersGUI {
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
+    }
+
+    private void styleButton(JButton button, Color color) {
+        button.setFont(new Font("Arial", Font.BOLD,20));
+        button.setPreferredSize(new Dimension(100, 30));
+        button.setBackground(color);
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setBorder(new LineBorder(Color.BLACK,0));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(color.darker());
+            }
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(color);
+            }
+        });
     }
 
     private void saveCijfer() {
@@ -135,6 +156,14 @@ public class AddCijfersGUI {
         } else {
             JOptionPane.showMessageDialog(frame, "Vul alle velden in!", "Fout", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void clearFields() {
+        studentField.setText("");
+        vakField.setText("");
+        semesterField.setText("");
+        cohortField.setText("");
+        cijferField.setText("");
     }
 
     public static void main(String[] args) {
