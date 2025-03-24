@@ -338,8 +338,22 @@ public class OverzichtStudentenGUI {
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
 
+        // Maak een Map voor de JSON data
+        Map<String, Object> requestData = new HashMap<>();
+
+        // Gebruik student_id als identifier (of student_number als je dat prefereert)
+        requestData.put("student_id", student.getId());
+
+        // Voeg alleen gewijzigde velden toe
+        requestData.put("student_number", student.getStudentnumber());
+        requestData.put("first_name", student.getFirstname());
+        requestData.put("last_name", student.getLastname());
+        requestData.put("gender", student.getGender());
+        requestData.put("birthdate", student.getBirthdate());
+
+        // Converteer naar JSON
         Gson gson = new Gson();
-        String jsonInputString = gson.toJson(student);
+        String jsonInputString = gson.toJson(requestData);
 
         try(OutputStream os = connection.getOutputStream()) {
             byte[] input = jsonInputString.getBytes("utf-8");
@@ -348,7 +362,17 @@ public class OverzichtStudentenGUI {
 
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new RuntimeException("Failed to update student: HTTP error code " + responseCode);
+            String errorMessage = "Onbekende fout";
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(connection.getErrorStream(), "utf-8"))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                errorMessage = response.toString();
+            }
+            throw new RuntimeException("Update mislukt: " + errorMessage);
         }
     }
 

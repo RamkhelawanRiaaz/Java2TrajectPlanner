@@ -9,7 +9,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-// Voeg deze klasse toe aan je code
+
 class ButtonEditor extends DefaultCellEditor {
     private JButton button;
     private String label;
