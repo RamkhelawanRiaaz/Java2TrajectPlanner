@@ -1,6 +1,8 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,12 +10,14 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -30,9 +34,9 @@ public class OverzichtStudentenGUI {
         // Maak het hoofdvenster
         frame = new JFrame("Overzicht Studenten");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(1000, 600);  // Iets groter voor een betere weergave
+        frame.setSize(1000, 600);
         frame.setLayout(new BorderLayout());
-        frame.getContentPane().setBackground(new Color(30, 30, 30));  // Donkere achtergrond
+        frame.getContentPane().setBackground(new Color(30, 30, 30));
 
         // Zoekbalk
         JPanel searchPanel = new JPanel(new BorderLayout());
@@ -61,28 +65,16 @@ public class OverzichtStudentenGUI {
         searchPanel.add(searchButton, BorderLayout.EAST);
         frame.add(searchPanel, BorderLayout.NORTH);
 
-        // Data voor de tabel
-        Object[][] data = new Object[students.size()][7];
-        for (int i = 0; i < students.size(); i++) {
-            Student student = students.get(i);
-            data[i][0] = student.getId();
-            data[i][1] = student.getFirstname();
-            data[i][2] = student.getLastname();
-            data[i][3] = student.getStudentnumber();
-            data[i][4] = student.getGender();
-            data[i][5] = student.getBirthdate();
-            data[i][6] = "Verwijderen"; // Knop tekst
-        }
-
-        // Maak de tabel
-        studentTable = new JTable(data, columnNames);
-        studentTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));  // Modern lettertype
-        studentTable.setRowHeight(30);  // Iets grotere rijhoogte
-        studentTable.setBackground(new Color(45, 45, 45));  // Donkere tabelachtergrond
-        studentTable.setForeground(Color.WHITE);  // Witte tekst
-        studentTable.setGridColor(new Color(80, 80, 80));  // Donkere rasterlijnen
-        studentTable.setSelectionBackground(new Color(0, 120, 215));  // Blauwe selectiekleur
-        studentTable.setSelectionForeground(Color.WHITE);  // Witte tekst bij selectie
+        // Maak de tabel met het custom model
+        StudentTableModel model = new StudentTableModel(students, columnNames);
+        studentTable = new JTable(model);
+        studentTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        studentTable.setRowHeight(30);
+        studentTable.setBackground(new Color(45, 45, 45));
+        studentTable.setForeground(Color.WHITE);
+        studentTable.setGridColor(new Color(80, 80, 80));
+        studentTable.setSelectionBackground(new Color(0, 120, 215));
+        studentTable.setSelectionForeground(Color.WHITE);
 
         // Voeg een MouseListener toe aan de tabel
         studentTable.addMouseListener(new MouseAdapter() {
@@ -98,9 +90,9 @@ public class OverzichtStudentenGUI {
 
         // Pas de header van de tabel aan
         JTableHeader header = studentTable.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));  // Vet lettertype voor de header
-        header.setBackground(new Color(0, 120, 215));  // Blauwe headerachtergrond
-        header.setForeground(Color.WHITE);  // Witte headertekst
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(new Color(0, 120, 215));
+        header.setForeground(Color.WHITE);
 
         // Centreer de tekst in de cellen
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -111,23 +103,179 @@ public class OverzichtStudentenGUI {
 
         // Voeg de ButtonRenderer en ButtonEditor toe aan de "Verwijderen" kolom
         studentTable.getColumn("Verwijderen").setCellRenderer(new ButtonRenderer());
-        studentTable.getColumn("Verwijderen").setCellEditor(new ButtonEditor(new JCheckBox(), studentTable));
+        studentTable.getColumn("Verwijderen").setCellEditor(new ButtonEditor(new JCheckBox(), studentTable, this));
 
         // Voeg de tabel toe aan een JScrollPane
         JScrollPane scrollPane = new JScrollPane(studentTable);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());  // Verwijder de standaardrand
-        scrollPane.getViewport().setBackground(new Color(30, 30, 30));  // Donkere achtergrond voor de scrollpane
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(new Color(30, 30, 30));
         frame.add(scrollPane, BorderLayout.CENTER);
 
         // Voeg wat padding toe rond de tabel
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));  // 20px padding
-        panel.setBackground(new Color(30, 30, 30));  // Donkere achtergrond
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBackground(new Color(30, 30, 30));
         panel.add(scrollPane, BorderLayout.CENTER);
         frame.add(panel, BorderLayout.CENTER);
 
         // Toon het venster
         frame.setVisible(true);
+    }
+
+    private void deleteStudent(int row) {
+        StudentTableModel model = (StudentTableModel) studentTable.getModel();
+        Student student = model.getStudentAt(row);
+
+        int confirm = JOptionPane.showConfirmDialog(
+                frame,
+                "Weet u zeker dat u student " + student.getFirstname() + " " + student.getLastname() + " wilt verwijderen?",
+                "Bevestig verwijdering",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                // Verwijder de student via de API
+                deleteStudentFromAPI(student.getId());
+
+                // Sluit het huidige venster
+                frame.dispose();
+
+                // Open een nieuw venster met de meest recente gegevens
+                new OverzichtStudentenGUI(fetchStudents());
+
+                JOptionPane.showMessageDialog(frame, "Student succesvol verwijderd.", "Succes", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(frame, "Fout bij verwijderen student: " + e.getMessage(), "Fout", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void deleteStudentFromAPI(String studentId) throws Exception {
+        String apiUrl = API_BASE_URL + "students";
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("DELETE");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        // Maak JSON request body
+        String jsonInputString = "{\"student_id\": \"" + studentId + "\"}";
+
+        try(OutputStream os = connection.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            // Lees de error response voor meer details
+            try(BufferedReader br = new BufferedReader(
+                    new InputStreamReader(connection.getErrorStream(), "utf-8"))) {
+                StringBuilder response = new StringBuilder();
+                String responseLine = null;
+                while ((responseLine = br.readLine()) != null) {
+                    response.append(responseLine.trim());
+                }
+                throw new RuntimeException("Failed to delete student: " + response.toString());
+            }
+        }
+    }
+    class StudentTableModel extends DefaultTableModel {
+        private List<Student> students;
+
+        public StudentTableModel(List<Student> students, String[] columnNames) {
+            super(convertStudentsToData(students), columnNames);
+            this.students = students;
+        }
+
+        private static Object[][] convertStudentsToData(List<Student> students) {
+            Object[][] data = new Object[students.size()][7];
+            for (int i = 0; i < students.size(); i++) {
+                Student student = students.get(i);
+                data[i][0] = student.getId();
+                data[i][1] = student.getFirstname();
+                data[i][2] = student.getLastname();
+                data[i][3] = student.getStudentnumber();
+                data[i][4] = student.getGender();
+                data[i][5] = student.getBirthdate();
+                data[i][6] = "Verwijderen";
+            }
+            return data;
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return column == 6;
+        }
+
+        public Student getStudentAt(int row) {
+            return students.get(row);
+        }
+
+        public void removeStudent(int row) {
+            students.remove(row);
+            fireTableRowsDeleted(row, row);
+        }
+
+
+    }
+
+    class ButtonEditor extends DefaultCellEditor {
+        private JButton button;
+        private String label;
+        private boolean isPushed;
+        private JTable table;
+        private OverzichtStudentenGUI gui;
+
+        public ButtonEditor(JCheckBox checkBox, JTable table, OverzichtStudentenGUI gui) {
+            super(checkBox);
+            this.table = table;
+            this.gui = gui;
+
+            button = new JButton();
+            button.setOpaque(true);
+            button.addActionListener(e -> fireEditingStopped());
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value,
+                                                     boolean isSelected, int row, int column) {
+            label = (value == null) ? "" : value.toString();
+            button.setText(label);
+            isPushed = true;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            if (isPushed) {
+                int row = table.convertRowIndexToModel(table.getEditingRow());
+                gui.deleteStudent(row);
+            }
+            isPushed = false;
+            return label;
+        }
+
+        @Override
+        public boolean stopCellEditing() {
+            isPushed = false;
+            return super.stopCellEditing();
+        }
+    }
+
+    class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer() {
+            setOpaque(true);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus, int row, int column) {
+            setText((value == null) ? "" : value.toString());
+            return this;
+        }
     }
 
     private void searchStudent() {
