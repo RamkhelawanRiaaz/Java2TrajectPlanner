@@ -105,7 +105,7 @@ public class AddCijfersGUI {
         fictieveDataButton = new JButton("Simuleer");
         styleButton(fictieveDataButton, new Color(0, 0, 139));
         fictieveDataButton.addActionListener(e -> fillWithFictieveData());
-        gbc.gridx = 1;
+        gbc.gridy = 9;
         mainPanel.add(fictieveDataButton, gbc);
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 20, 0));
