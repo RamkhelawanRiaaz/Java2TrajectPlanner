@@ -1,24 +1,14 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.border.Border;
+import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.HashMap;
+import java.awt.event.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import com.google.gson.Gson;
+
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
 public class OverzichtStudentenGUI {
@@ -26,12 +16,13 @@ public class OverzichtStudentenGUI {
     private JTable studentTable;
     private JTextField searchField;
     private static final String API_BASE_URL = "https://trajectplannerapi.dulamari.com/";
-    private String[] columnNames = {"ID", "Voornaam", "Achternaam", "Studentnummer", "Geslacht", "Geboortedatum", "Verwijderen"};
+    private String[] columnNames = {"ID", "Voornaam", "Achternaam", "Studentnummer", "Geslacht", "Geboortedatum", "Bewerken", "Verwijderen"};
 
     public OverzichtStudentenGUI(List<Student> students) {
-        System.out.println("OverzichtStudentenGUI wordt geopend met " + students.size() + " studenten.");
+        createAndShowGUI(students);
+    }
 
-        // Maak het hoofdvenster
+    private void createAndShowGUI(List<Student> students) {
         frame = new JFrame("Overzicht Studenten");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1000, 600);
@@ -39,9 +30,36 @@ public class OverzichtStudentenGUI {
         frame.getContentPane().setBackground(new Color(30, 30, 30));
 
         // Zoekbalk
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        searchPanel.setBackground(new Color(30, 30, 30));
+        JPanel searchPanel = createSearchPanel();
+        frame.add(searchPanel, BorderLayout.NORTH);
+
+        // Maak de tabel
+        StudentTableModel model = new StudentTableModel(students, columnNames);
+        studentTable = new JTable(model);
+        configureTable();
+
+        // ScrollPane en hoofdpanel
+        JScrollPane scrollPane = new JScrollPane(studentTable);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getViewport().setBackground(new Color(30, 30, 30));
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(new Color(30, 30, 30));
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+        frame.add(mainPanel, BorderLayout.CENTER);
+
+        // Configureer knoppen
+        configureButtons();
+
+        frame.setVisible(true);
+    }
+
+    private JPanel createSearchPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setBackground(new Color(30, 30, 30));
+
         searchField = new JTextField();
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         searchField.setBackground(new Color(45, 45, 45));
@@ -50,24 +68,21 @@ public class OverzichtStudentenGUI {
         searchField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(80, 80, 80)),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
         JButton searchButton = new JButton("Zoeken");
         searchButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         searchButton.setBackground(new Color(0, 120, 215));
         searchButton.setForeground(Color.WHITE);
         searchButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                searchStudent();
-            }
-        });
-        searchPanel.add(searchField, BorderLayout.CENTER);
-        searchPanel.add(searchButton, BorderLayout.EAST);
-        frame.add(searchPanel, BorderLayout.NORTH);
+        searchButton.addActionListener(e -> searchStudent());
 
-        // Maak de tabel met het custom model
-        StudentTableModel model = new StudentTableModel(students, columnNames);
-        studentTable = new JTable(model);
+        panel.add(searchField, BorderLayout.CENTER);
+        panel.add(searchButton, BorderLayout.EAST);
+
+        return panel;
+    }
+
+    private void configureTable() {
         studentTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         studentTable.setRowHeight(30);
         studentTable.setBackground(new Color(45, 45, 45));
@@ -76,7 +91,6 @@ public class OverzichtStudentenGUI {
         studentTable.setSelectionBackground(new Color(0, 120, 215));
         studentTable.setSelectionForeground(Color.WHITE);
 
-        // Voeg een MouseListener toe aan de tabel
         studentTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -88,38 +102,208 @@ public class OverzichtStudentenGUI {
             }
         });
 
-        // Pas de header van de tabel aan
         JTableHeader header = studentTable.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         header.setBackground(new Color(0, 120, 215));
         header.setForeground(Color.WHITE);
 
-        // Centreer de tekst in de cellen
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < studentTable.getColumnCount(); i++) {
             studentTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
+    }
 
-        // Voeg de ButtonRenderer en ButtonEditor toe aan de "Verwijderen" kolom
+    private void configureButtons() {
+        studentTable.getColumn("Bewerken").setCellRenderer(new ButtonRenderer());
+        studentTable.getColumn("Bewerken").setCellEditor(new ButtonEditor(new JCheckBox(), studentTable, this, true));
+
         studentTable.getColumn("Verwijderen").setCellRenderer(new ButtonRenderer());
-        studentTable.getColumn("Verwijderen").setCellEditor(new ButtonEditor(new JCheckBox(), studentTable, this));
+        studentTable.getColumn("Verwijderen").setCellEditor(new ButtonEditor(new JCheckBox(), studentTable, this, false));
+    }
 
-        // Voeg de tabel toe aan een JScrollPane
-        JScrollPane scrollPane = new JScrollPane(studentTable);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        scrollPane.getViewport().setBackground(new Color(30, 30, 30));
-        frame.add(scrollPane, BorderLayout.CENTER);
+    private void updateStudent(int row) {
+        StudentTableModel model = (StudentTableModel) studentTable.getModel();
+        Student student = model.getStudentAt(row);
 
-        // Voeg wat padding toe rond de tabel
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        panel.setBackground(new Color(30, 30, 30));
-        panel.add(scrollPane, BorderLayout.CENTER);
-        frame.add(panel, BorderLayout.CENTER);
+        JDialog editDialog = new JDialog(frame, "Student Bewerken", true);
+        editDialog.setSize(800, 600);
+        editDialog.setLayout(new BorderLayout());
+        editDialog.getContentPane().setBackground(new Color(30, 30, 30));
 
-        // Toon het venster
-        frame.setVisible(true);
+        // Hoofdpanel met padding
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        mainPanel.setBackground(new Color(30, 30, 30));
+
+        // Form panel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(new Color(45, 45, 45));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+
+        // Stijl voor labels
+        Font labelFont = new Font("Segoe UI", Font.BOLD, 14);
+        Color labelColor = new Color(200, 200, 200);
+
+        // Stijl voor input velden
+        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 14);
+        Color fieldBg = new Color(60, 60, 60);
+        Color fieldFg = Color.WHITE;
+        Border fieldBorder = BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(80, 80, 80)),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        );
+
+        // Voornaam
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        JLabel firstNameLabel = new JLabel("Voornaam:");
+        firstNameLabel.setFont(labelFont);
+        firstNameLabel.setForeground(labelColor);
+        formPanel.add(firstNameLabel, gbc);
+
+        gbc.gridx = 1;
+        JTextField firstNameField = new JTextField(student.getFirstname());
+        styleTextField(firstNameField, fieldFont, fieldBg, fieldFg, fieldBorder);
+        formPanel.add(firstNameField, gbc);
+
+        // Achternaam
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        JLabel lastNameLabel = new JLabel("Achternaam:");
+        lastNameLabel.setFont(labelFont);
+        lastNameLabel.setForeground(labelColor);
+        formPanel.add(lastNameLabel, gbc);
+
+        gbc.gridx = 1;
+        JTextField lastNameField = new JTextField(student.getLastname());
+        styleTextField(lastNameField, fieldFont, fieldBg, fieldFg, fieldBorder);
+        formPanel.add(lastNameField, gbc);
+
+        // Studentnummer
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        JLabel studentNumberLabel = new JLabel("Studentnummer:");
+        studentNumberLabel.setFont(labelFont);
+        studentNumberLabel.setForeground(labelColor);
+        formPanel.add(studentNumberLabel, gbc);
+
+        gbc.gridx = 1;
+        JTextField studentNumberField = new JTextField(student.getStudentnumber());
+        styleTextField(studentNumberField, fieldFont, fieldBg, fieldFg, fieldBorder);
+        formPanel.add(studentNumberField, gbc);
+
+        // Geslacht
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        JLabel genderLabel = new JLabel("Geslacht:");
+        genderLabel.setFont(labelFont);
+        genderLabel.setForeground(labelColor);
+        formPanel.add(genderLabel, gbc);
+
+        gbc.gridx = 1;
+        JComboBox<String> genderField = new JComboBox<>(new String[]{"M", "F"});
+        genderField.setSelectedItem(student.getGender());
+        styleComboBox(genderField, fieldFont, fieldBg, fieldFg);
+        formPanel.add(genderField, gbc);
+
+        // Geboortedatum
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        JLabel birthdateLabel = new JLabel("Geboortedatum (YYYY-MM-DD):");
+        birthdateLabel.setFont(labelFont);
+        birthdateLabel.setForeground(labelColor);
+        formPanel.add(birthdateLabel, gbc);
+
+        gbc.gridx = 1;
+        JTextField birthdateField = new JTextField(student.getBirthdate());
+        styleTextField(birthdateField, fieldFont, fieldBg, fieldFg, fieldBorder);
+        formPanel.add(birthdateField, gbc);
+
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+
+        // Knop panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        buttonPanel.setBackground(new Color(30, 30, 30));
+
+        JButton saveButton = new JButton("Opslaan");
+        styleButton(saveButton, new Color(0, 120, 215), Color.WHITE);
+        saveButton.addActionListener(e -> {
+            try {
+                Student updatedStudent = new Student();
+                updatedStudent.setId(student.getId());
+                updatedStudent.setFirstname(firstNameField.getText());
+                updatedStudent.setLastname(lastNameField.getText());
+                updatedStudent.setStudentnumber(studentNumberField.getText());
+                updatedStudent.setGender((String) genderField.getSelectedItem());
+                updatedStudent.setBirthdate(birthdateField.getText());
+
+                updateStudentInAPI(updatedStudent);
+                frame.dispose();
+                new OverzichtStudentenGUI(fetchStudents());
+                editDialog.dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(editDialog, "Fout bij bijwerken: " + ex.getMessage(),
+                        "Fout", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        JButton cancelButton = new JButton("Annuleren");
+        styleButton(cancelButton, new Color(80, 80, 80), Color.WHITE);
+        cancelButton.addActionListener(e -> editDialog.dispose());
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
+
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        editDialog.add(mainPanel, BorderLayout.CENTER);
+        editDialog.setLocationRelativeTo(frame);
+        editDialog.setVisible(true);
+    }
+
+    // Hulp methodes voor styling
+    private void styleTextField(JTextField field, Font font, Color bg, Color fg, Border border) {
+        field.setFont(font);
+        field.setBackground(bg);
+        field.setForeground(fg);
+        field.setBorder(border);
+        field.setCaretColor(fg);
+    }
+
+    private void styleComboBox(JComboBox<String> comboBox, Font font, Color bg, Color fg) {
+        comboBox.setFont(font);
+        comboBox.setBackground(bg);
+        comboBox.setForeground(fg);
+        comboBox.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(80, 80, 80)),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        comboBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setBackground(bg);
+                setForeground(fg);
+                return this;
+            }
+        });
+    }
+
+    private void styleButton(JButton button, Color bg, Color fg) {
+        button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        button.setBackground(bg);
+        button.setForeground(fg);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setFocusPainted(false);
     }
 
     private void deleteStudent(int row) {
@@ -135,20 +319,36 @@ public class OverzichtStudentenGUI {
 
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                // Verwijder de student via de API
                 deleteStudentFromAPI(student.getId());
-
-                // Sluit het huidige venster
                 frame.dispose();
-
-                // Open een nieuw venster met de meest recente gegevens
                 new OverzichtStudentenGUI(fetchStudents());
-
                 JOptionPane.showMessageDialog(frame, "Student succesvol verwijderd.", "Succes", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(frame, "Fout bij verwijderen student: " + e.getMessage(), "Fout", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Fout bij verwijderen student: " + e.getMessage(),
+                        "Fout", JOptionPane.ERROR_MESSAGE);
             }
+        }
+    }
+
+    private void updateStudentInAPI(Student student) throws Exception {
+        String apiUrl = API_BASE_URL + "students";
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("PUT");
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        Gson gson = new Gson();
+        String jsonInputString = gson.toJson(student);
+
+        try(OutputStream os = connection.getOutputStream()) {
+            byte[] input = jsonInputString.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new RuntimeException("Failed to update student: HTTP error code " + responseCode);
         }
     }
 
@@ -160,7 +360,6 @@ public class OverzichtStudentenGUI {
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
 
-        // Maak JSON request body
         String jsonInputString = "{\"student_id\": \"" + studentId + "\"}";
 
         try(OutputStream os = connection.getOutputStream()) {
@@ -170,16 +369,153 @@ public class OverzichtStudentenGUI {
 
         int responseCode = connection.getResponseCode();
         if (responseCode != HttpURLConnection.HTTP_OK) {
-            // Lees de error response voor meer details
-            try(BufferedReader br = new BufferedReader(
-                    new InputStreamReader(connection.getErrorStream(), "utf-8"))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine = null;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                throw new RuntimeException("Failed to delete student: " + response.toString());
+            throw new RuntimeException("Failed to delete student: HTTP error code " + responseCode);
+        }
+    }
+
+    private void searchStudent() {
+        String searchText = searchField.getText().trim();
+        for (int i = 0; i < studentTable.getRowCount(); i++) {
+            String studentNumber = (String) studentTable.getValueAt(i, 3);
+            if (studentNumber.equals(searchText)) {
+                studentTable.setRowSelectionInterval(i, i);
+                studentTable.scrollRectToVisible(studentTable.getCellRect(i, 0, true));
+                return;
             }
+        }
+        JOptionPane.showMessageDialog(frame, "Student niet gevonden.", "Fout", JOptionPane.ERROR_MESSAGE);
+    }
+    private Map<String, Double> calculateAveragePerCourse(String studentNumber) {
+        Map<String, Double> averagePerCourse = new HashMap<>();
+        try {
+            List<Grade> grades = fetchGradesForStudent(studentNumber);
+
+            // Eerst verzamelen we alle cijfers per vak
+            Map<String, List<Double>> scoresPerCourse = new HashMap<>();
+            for (Grade grade : grades) {
+                String courseName = grade.getCourse_name();
+                double score = Double.parseDouble(grade.getScore_value());
+
+                scoresPerCourse.computeIfAbsent(courseName, k -> new ArrayList<>()).add(score);
+            }
+
+            // Dan berekenen we het gemiddelde per vak
+            for (Map.Entry<String, List<Double>> entry : scoresPerCourse.entrySet()) {
+                double sum = 0;
+                for (Double score : entry.getValue()) {
+                    sum += score;
+                }
+                double average = sum / entry.getValue().size();
+                averagePerCourse.put(entry.getKey(), average);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Fout bij berekenen gemiddelden: " + e.getMessage(),
+                    "Fout", JOptionPane.ERROR_MESSAGE);
+        }
+        return averagePerCourse;
+    }
+    private void showStudentScores(String studentNumber) {
+        try {
+            List<Grade> grades = fetchGradesForStudent(studentNumber);
+            List<Exam> exams = fetchExams();
+
+            // Bereken gemiddelden per vak
+            Map<String, Double> averagePerCourse = calculateAveragePerCourse(studentNumber);
+
+            JDialog scoresDialog = new JDialog(frame, "Cijfers voor " + studentNumber, true);
+            scoresDialog.setSize(800, 600);
+            scoresDialog.setLayout(new BorderLayout());
+            scoresDialog.getContentPane().setBackground(new Color(30, 30, 30));
+
+            // Maak een panel voor de gemiddelden
+            JPanel averagesPanel = new JPanel(new GridLayout(averagePerCourse.size(), 1, 10, 10));
+            averagesPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+            averagesPanel.setBackground(new Color(30, 30, 30));
+
+            // Voeg gemiddelden toe aan het panel
+            for (Map.Entry<String, Double> entry : averagePerCourse.entrySet()) {
+                JLabel averageLabel = new JLabel(entry.getKey() + ": " + String.format("%.2f", entry.getValue()));
+                averageLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                averageLabel.setForeground(Color.WHITE);
+                averageLabel.setHorizontalAlignment(JLabel.LEFT);
+                averagesPanel.add(averageLabel);
+            }
+
+            // Maak de cijfertabel
+            String[] columnNames = {"Vak", "Cijfer", "Semester", "Type"};
+            Object[][] data = new Object[grades.size()][4];
+
+            for (int i = 0; i < grades.size(); i++) {
+                Grade grade = grades.get(i);
+                Exam exam = exams.stream()
+                        .filter(e -> e.getId() == Integer.parseInt(grade.getExam_id()))
+                        .findFirst()
+                        .orElse(null);
+
+                data[i][0] = grade.getCourse_name();
+                data[i][1] = grade.getScore_value();
+                data[i][2] = exam != null ? exam.getSemester() : "Onbekend";
+                data[i][3] = exam != null ? exam.getType() : "Onbekend";
+            }
+
+            JTable scoresTable = new JTable(data, columnNames);
+            // Stijl toepassen op de tabel
+            scoresTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            scoresTable.setRowHeight(30);
+            scoresTable.setBackground(new Color(45, 45, 45));
+            scoresTable.setForeground(Color.WHITE);
+            scoresTable.setGridColor(new Color(80, 80, 80));
+            scoresTable.setSelectionBackground(new Color(0, 120, 215));
+            scoresTable.setSelectionForeground(Color.WHITE);
+            scoresTable.setBorder(BorderFactory.createEmptyBorder());
+
+            // Header stijl
+            JTableHeader header = scoresTable.getTableHeader();
+            header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            header.setBackground(new Color(0, 120, 215));
+            header.setForeground(Color.WHITE);
+            header.setBorder(BorderFactory.createEmptyBorder());
+
+            // Center de tekst in de cellen
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+            centerRenderer.setBackground(new Color(45, 45, 45));
+            centerRenderer.setForeground(Color.WHITE);
+            for (int i = 0; i < scoresTable.getColumnCount(); i++) {
+                scoresTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
+
+            JScrollPane scrollPane = new JScrollPane(scoresTable);
+            scrollPane.setBorder(BorderFactory.createEmptyBorder());
+            scrollPane.getViewport().setBackground(new Color(45, 45, 45));
+
+            JPanel tablePanel = new JPanel(new BorderLayout());
+            tablePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            tablePanel.setBackground(new Color(30, 30, 30));
+            tablePanel.add(scrollPane, BorderLayout.CENTER);
+
+            // Voeg alles toe aan het dialoogvenster
+            scoresDialog.add(averagesPanel, BorderLayout.NORTH);
+            scoresDialog.add(tablePanel, BorderLayout.CENTER);
+
+            // Sluiten knop
+            JButton closeButton = new JButton("Sluiten");
+            closeButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            closeButton.setBackground(new Color(0, 120, 215));
+            closeButton.setForeground(Color.WHITE);
+            closeButton.addActionListener(e -> scoresDialog.dispose());
+
+            JPanel buttonPanel = new JPanel();
+            buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+            buttonPanel.setBackground(new Color(30, 30, 30));
+            buttonPanel.add(closeButton);
+
+            scoresDialog.add(buttonPanel, BorderLayout.SOUTH);
+            scoresDialog.setLocationRelativeTo(frame);
+            scoresDialog.setVisible(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Geen Cijfers", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     class StudentTableModel extends DefaultTableModel {
@@ -191,7 +527,7 @@ public class OverzichtStudentenGUI {
         }
 
         private static Object[][] convertStudentsToData(List<Student> students) {
-            Object[][] data = new Object[students.size()][7];
+            Object[][] data = new Object[students.size()][8];
             for (int i = 0; i < students.size(); i++) {
                 Student student = students.get(i);
                 data[i][0] = student.getId();
@@ -200,14 +536,15 @@ public class OverzichtStudentenGUI {
                 data[i][3] = student.getStudentnumber();
                 data[i][4] = student.getGender();
                 data[i][5] = student.getBirthdate();
-                data[i][6] = "Verwijderen";
+                data[i][6] = "Bewerken";
+                data[i][7] = "Verwijderen";
             }
             return data;
         }
 
         @Override
         public boolean isCellEditable(int row, int column) {
-            return column == 6;
+            return column == 6 || column == 7;
         }
 
         public Student getStudentAt(int row) {
@@ -218,8 +555,6 @@ public class OverzichtStudentenGUI {
             students.remove(row);
             fireTableRowsDeleted(row, row);
         }
-
-
     }
 
     class ButtonEditor extends DefaultCellEditor {
@@ -228,11 +563,13 @@ public class OverzichtStudentenGUI {
         private boolean isPushed;
         private JTable table;
         private OverzichtStudentenGUI gui;
+        private boolean isEditButton;
 
-        public ButtonEditor(JCheckBox checkBox, JTable table, OverzichtStudentenGUI gui) {
+        public ButtonEditor(JCheckBox checkBox, JTable table, OverzichtStudentenGUI gui, boolean isEditButton) {
             super(checkBox);
             this.table = table;
             this.gui = gui;
+            this.isEditButton = isEditButton;
 
             button = new JButton();
             button.setOpaque(true);
@@ -252,7 +589,11 @@ public class OverzichtStudentenGUI {
         public Object getCellEditorValue() {
             if (isPushed) {
                 int row = table.convertRowIndexToModel(table.getEditingRow());
-                gui.deleteStudent(row);
+                if (isEditButton) {
+                    gui.updateStudent(row);
+                } else {
+                    gui.deleteStudent(row);
+                }
             }
             isPushed = false;
             return label;
@@ -278,185 +619,13 @@ public class OverzichtStudentenGUI {
         }
     }
 
-    private void searchStudent() {
-        String searchText = searchField.getText().trim();
-        for (int i = 0; i < studentTable.getRowCount(); i++) {
-            String studentNumber = (String) studentTable.getValueAt(i, 3);
-            if (studentNumber.equals(searchText)) {
-                // Selecteer de rij en scroll naar de geselecteerde rij
-                studentTable.setRowSelectionInterval(i, i);
-                studentTable.scrollRectToVisible(studentTable.getCellRect(i, 0, true));
-                return;
-            }
-        }
-        // Als de student niet gevonden is, toon een foutmelding
-        JOptionPane.showMessageDialog(frame, "Student niet gevonden.", "Fout", JOptionPane.ERROR_MESSAGE);
-    }
-
-    private void showStudentScores(String studentNumber) {
-        try {
-            // Haal de cijfers op via de API
-            List<Grade> grades = fetchGradesForStudent(studentNumber);
-            System.out.println("Aantal cijfers: " + grades.size()); // Debugging
-
-            // Haal de examengegevens op
-            List<Exam> exams = fetchExams();
-
-            // Maak een JDialog in plaats van een JFrame
-            JDialog scoresDialog = new JDialog(frame, "Cijfers voor " + studentNumber, true); // true = modal
-            scoresDialog.setSize(800, 600); // Groter frame voor betere weergave
-            scoresDialog.setLayout(new BorderLayout());
-            scoresDialog.getContentPane().setBackground(new Color(30, 30, 30));
-
-            // Kolomnamen voor de tabel
-            String[] columnNames = {"Vak", "Cijfer", "Semester", "Type"};
-
-            // Data voor de tabel
-            Object[][] data = new Object[grades.size()][4];
-            for (int i = 0; i < grades.size(); i++) {
-                Grade grade = grades.get(i);
-
-                // Zoek het bijbehorende examen op basis van exam_id
-                Exam exam = exams.stream()
-                        .filter(e -> e.getId() == Integer.parseInt(grade.getExam_id()))
-                        .findFirst()
-                        .orElse(null);
-
-                // Vul de tabeldata in
-                data[i][0] = grade.getCourse_name(); // Vaknaam
-                data[i][1] = grade.getScore_value(); // Cijfer
-                if (exam != null) {
-                    data[i][2] = exam.getSemester(); // Semester
-                    data[i][3] = exam.getType();    // Type (Regulier/Her)
-                } else {
-                    data[i][2] = "Onbekend"; // Als het examen niet gevonden is
-                    data[i][3] = "Onbekend";
-                }
-            }
-
-            // Maak de tabel
-            JTable scoresTable = new JTable(data, columnNames);
-            scoresTable.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Modern lettertype
-            scoresTable.setRowHeight(30); // Grotere rijhoogte
-            scoresTable.setBackground(new Color(45, 45, 45)); // Donkere tabelachtergrond
-            scoresTable.setForeground(Color.WHITE); // Witte tekst
-            scoresTable.setGridColor(new Color(80, 80, 80)); // Donkere rasterlijnen
-            scoresTable.setSelectionBackground(new Color(0, 120, 215)); // Blauwe selectiekleur
-            scoresTable.setSelectionForeground(Color.WHITE); // Witte tekst bij selectie
-
-            // Centreer de tekst in de cellen
-            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-            centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-            for (int i = 0; i < scoresTable.getColumnCount(); i++) {
-                scoresTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-            }
-
-            // Pas de header van de tabel aan
-            JTableHeader header = scoresTable.getTableHeader();
-            header.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Vet lettertype voor de header
-            header.setBackground(new Color(0, 120, 215)); // Blauwe headerachtergrond
-            header.setForeground(Color.WHITE); // Witte headertekst
-
-            // Voeg de tabel toe aan een JScrollPane
-            JScrollPane scrollPane = new JScrollPane(scoresTable);
-            scrollPane.setBorder(BorderFactory.createEmptyBorder()); // Verwijder de standaardrand
-            scrollPane.getViewport().setBackground(new Color(30, 30, 30)); // Donkere achtergrond voor de scrollpane
-
-            // Voeg wat padding toe rond de tabel
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // 20px padding
-            panel.setBackground(new Color(30, 30, 30)); // Donkere achtergrond
-            panel.add(scrollPane, BorderLayout.CENTER);
-
-            // Bereken het gemiddelde per vak
-            Map<String, Double> averagePerCourse = calculateAveragePerCourse(studentNumber);
-
-            // Maak een panel om het gemiddelde weer te geven
-            JPanel averagePanel = new JPanel(new GridLayout(averagePerCourse.size(), 1, 10, 10));
-            averagePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-            averagePanel.setBackground(new Color(30, 30, 30));
-
-            for (Map.Entry<String, Double> entry : averagePerCourse.entrySet()) {
-                String courseName = entry.getKey();
-                double average = entry.getValue();
-                JLabel averageLabel = new JLabel("Gemiddelde voor " + courseName + ": " + String.format("%.2f", average));
-                averageLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                averageLabel.setForeground(Color.WHITE);
-                averageLabel.setHorizontalAlignment(JLabel.CENTER);
-                averagePanel.add(averageLabel);
-            }
-
-            // Voeg een "Sluiten"-knop toe
-            JButton closeButton = new JButton("Sluiten");
-            closeButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-            closeButton.setBackground(new Color(0, 120, 215));
-            closeButton.setForeground(Color.WHITE);
-            closeButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-            closeButton.addActionListener(e -> scoresDialog.dispose()); // Sluit het dialoogvenster
-
-            JPanel buttonPanel = new JPanel();
-            buttonPanel.setBackground(new Color(30, 30, 30));
-            buttonPanel.add(closeButton);
-
-            // Voeg de componenten toe aan het dialoogvenster
-            scoresDialog.add(panel, BorderLayout.CENTER); // Tabel met cijfers
-            scoresDialog.add(averagePanel, BorderLayout.NORTH); // Gemiddelde per vak
-            scoresDialog.add(buttonPanel, BorderLayout.SOUTH); // Sluiten-knop
-
-            // Centreer het dialoogvenster ten opzichte van het hoofdvenster
-            scoresDialog.setLocationRelativeTo(frame);
-
-            // Toon het dialoogvenster
-            scoresDialog.setVisible(true);
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Geen Cijfers", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private List<Grade> fetchGradesForStudent(String studentNumber) throws Exception {
-        // Maak de URL voor het ophalen van de cijfers van een specifieke student
-        String apiUrl = API_BASE_URL + "scores/" + studentNumber.replace("/", "-");
-        System.out.println("Fetching grades from: " + apiUrl); // Debugging
-
-        // Maak een HTTP-verbinding
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-
-        // Lees het antwoord van de API
-        int responseCode = connection.getResponseCode();
-        System.out.println("Response Code: " + responseCode); // Debugging
-
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            reader.close();
-
-            System.out.println("Response: " + response.toString()); // Debugging
-
-            // Converteer het JSON-antwoord naar een lijst van Grade-objecten
-            Gson gson = new Gson();
-            return gson.fromJson(response.toString(), new TypeToken<List<Grade>>() {}.getType());
-        } else {
-            throw new RuntimeException("Failed to fetch grades: HTTP error code " + responseCode);
-        }
-    }
-
+    // API methodes
     private static List<Student> fetchStudents() throws Exception {
-        // Maak de URL voor het ophalen van alle studenten
         String apiUrl = API_BASE_URL + "students";
-
-        // Maak een HTTP-verbinding
         URL url = new URL(apiUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
 
-        // Lees het antwoord van de API
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         StringBuilder response = new StringBuilder();
         String line;
@@ -464,13 +633,29 @@ public class OverzichtStudentenGUI {
             response.append(line);
         }
         reader.close();
-        Gson gson = new Gson();
-        return gson.fromJson(response.toString(), new TypeToken<List<Student>>() {}.getType());
+
+        return new Gson().fromJson(response.toString(), new TypeToken<List<Student>>(){}.getType());
+    }
+
+    private List<Grade> fetchGradesForStudent(String studentNumber) throws Exception {
+        String apiUrl = API_BASE_URL + "scores/" + studentNumber.replace("/", "-");
+        URL url = new URL(apiUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        StringBuilder response = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+
+        return new Gson().fromJson(response.toString(), new TypeToken<List<Grade>>(){}.getType());
     }
 
     private List<Exam> fetchExams() throws Exception {
         String apiUrl = API_BASE_URL + "exams";
-
         URL url = new URL(apiUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
@@ -483,59 +668,15 @@ public class OverzichtStudentenGUI {
         }
         reader.close();
 
-        Gson gson = new Gson();
-        return gson.fromJson(response.toString(), new TypeToken<List<Exam>>() {}.getType());
-    }
-
-    private Map<String, Double> calculateAveragePerCourse(String studentNumber) {
-        Map<String, Double> averagePerCourse = new HashMap<>(); // Map om het gemiddelde per vak op te slaan
-        try {
-            // Haal de cijfers op via de API
-            List<Grade> grades = fetchGradesForStudent(studentNumber);
-
-            // Loop door alle cijfers
-            for (Grade grade : grades) {
-                String courseName = grade.getCourse_name();
-                double score = Double.parseDouble(grade.getScore_value());
-
-                // Voeg het cijfer toe aan het vak
-                if (averagePerCourse.containsKey(courseName)) {
-                    // Als het vak al bestaat, tel het cijfer op en verhoog de teller
-                    double currentTotal = averagePerCourse.get(courseName);
-                    averagePerCourse.put(courseName, currentTotal + score);
-                } else {
-                    // Als het vak nog niet bestaat, voeg het toe aan de map
-                    averagePerCourse.put(courseName, score);
-                }
-            }
-
-            // Bereken het gemiddelde per vak
-            for (Map.Entry<String, Double> entry : averagePerCourse.entrySet()) {
-                String courseName = entry.getKey();
-                double totalScore = entry.getValue();
-                long count = grades.stream()
-                        .filter(g -> g.getCourse_name().equals(courseName))
-                        .count();
-                double average = totalScore / count;
-                averagePerCourse.put(courseName, average);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(frame, "Fout bij het berekenen van het gemiddelde per vak.", "Fout", JOptionPane.ERROR_MESSAGE);
-        }
-        return averagePerCourse;
+        return new Gson().fromJson(response.toString(), new TypeToken<List<Exam>>(){}.getType());
     }
 
     public static void main(String[] args) {
         try {
-            // Haal de studentgegevens op via de API
             List<Student> students = fetchStudents();
-
-            // Open de GUI met de opgehaalde studentgegevens
             new OverzichtStudentenGUI(students);
         } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Fout bij het ophalen van de studentgegevens.", "Fout", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Fout bij het ophalen van studentgegevens.", "Fout", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
