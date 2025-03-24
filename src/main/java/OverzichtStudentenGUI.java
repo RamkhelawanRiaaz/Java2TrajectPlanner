@@ -22,6 +22,7 @@ public class OverzichtStudentenGUI {
     private JTable studentTable;
     private JTextField searchField;
     private static final String API_BASE_URL = "https://trajectplannerapi.dulamari.com/";
+    private String[] columnNames = {"ID", "Voornaam", "Achternaam", "Studentnummer", "Geslacht", "Geboortedatum", "Verwijderen"};
 
     public OverzichtStudentenGUI(List<Student> students) {
         System.out.println("OverzichtStudentenGUI wordt geopend met " + students.size() + " studenten.");
@@ -60,9 +61,6 @@ public class OverzichtStudentenGUI {
         searchPanel.add(searchButton, BorderLayout.EAST);
         frame.add(searchPanel, BorderLayout.NORTH);
 
-        // Kolomnamen voor de tabel
-        String[] columnNames = {"ID", "Voornaam", "Achternaam", "Studentnummer", "Geslacht", "Geboortedatum"};
-
         // Data voor de tabel
         Object[][] data = new Object[students.size()][7];
         for (int i = 0; i < students.size(); i++) {
@@ -73,7 +71,7 @@ public class OverzichtStudentenGUI {
             data[i][3] = student.getStudentnumber();
             data[i][4] = student.getGender();
             data[i][5] = student.getBirthdate();
-
+            data[i][6] = "Verwijderen"; // Knop tekst
         }
 
         // Maak de tabel
@@ -111,6 +109,10 @@ public class OverzichtStudentenGUI {
             studentTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
+        // Voeg de ButtonRenderer en ButtonEditor toe aan de "Verwijderen" kolom
+        studentTable.getColumn("Verwijderen").setCellRenderer(new ButtonRenderer());
+        studentTable.getColumn("Verwijderen").setCellEditor(new ButtonEditor(new JCheckBox(), studentTable));
+
         // Voeg de tabel toe aan een JScrollPane
         JScrollPane scrollPane = new JScrollPane(studentTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());  // Verwijder de standaardrand
@@ -147,6 +149,7 @@ public class OverzichtStudentenGUI {
         try {
             // Haal de cijfers op via de API
             List<Grade> grades = fetchGradesForStudent(studentNumber);
+            System.out.println("Aantal cijfers: " + grades.size()); // Debugging
 
             // Haal de examengegevens op
             List<Exam> exams = fetchExams();
@@ -262,9 +265,11 @@ public class OverzichtStudentenGUI {
             JOptionPane.showMessageDialog(frame, "Geen Cijfers", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private List<Grade> fetchGradesForStudent(String studentNumber) throws Exception {
         // Maak de URL voor het ophalen van de cijfers van een specifieke student
         String apiUrl = API_BASE_URL + "scores/" + studentNumber.replace("/", "-");
+        System.out.println("Fetching grades from: " + apiUrl); // Debugging
 
         // Maak een HTTP-verbinding
         URL url = new URL(apiUrl);
@@ -272,17 +277,26 @@ public class OverzichtStudentenGUI {
         connection.setRequestMethod("GET");
 
         // Lees het antwoord van de API
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-        reader.close();
+        int responseCode = connection.getResponseCode();
+        System.out.println("Response Code: " + responseCode); // Debugging
 
-        // Converteer het JSON-antwoord naar een lijst van Grade-objecten
-        Gson gson = new Gson();
-        return gson.fromJson(response.toString(), new TypeToken<List<Grade>>() {}.getType());
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+            System.out.println("Response: " + response.toString()); // Debugging
+
+            // Converteer het JSON-antwoord naar een lijst van Grade-objecten
+            Gson gson = new Gson();
+            return gson.fromJson(response.toString(), new TypeToken<List<Grade>>() {}.getType());
+        } else {
+            throw new RuntimeException("Failed to fetch grades: HTTP error code " + responseCode);
+        }
     }
 
     private static List<Student> fetchStudents() throws Exception {
@@ -302,11 +316,10 @@ public class OverzichtStudentenGUI {
             response.append(line);
         }
         reader.close();
-
-        // Converteer het JSON-antwoord naar een lijst van Student-objecten
         Gson gson = new Gson();
         return gson.fromJson(response.toString(), new TypeToken<List<Student>>() {}.getType());
     }
+
     private List<Exam> fetchExams() throws Exception {
         String apiUrl = API_BASE_URL + "exams";
 
@@ -364,7 +377,6 @@ public class OverzichtStudentenGUI {
         }
         return averagePerCourse;
     }
-
 
     public static void main(String[] args) {
         try {
