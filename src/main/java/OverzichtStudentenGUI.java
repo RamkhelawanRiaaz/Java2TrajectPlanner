@@ -127,7 +127,7 @@ public class OverzichtStudentenGUI {
         Student student = model.getStudentAt(row);
 
         JDialog editDialog = new JDialog(frame, "Student Bewerken", true);
-        editDialog.setSize(800, 600);
+        editDialog.setSize(800, 700); // Iets groter gemaakt voor de extra velden
         editDialog.setLayout(new BorderLayout());
         editDialog.getContentPane().setBackground(new Color(30, 30, 30));
 
@@ -199,9 +199,35 @@ public class OverzichtStudentenGUI {
         styleTextField(studentNumberField, fieldFont, fieldBg, fieldFg, fieldBorder);
         formPanel.add(studentNumberField, gbc);
 
-        // Geslacht
+        // Wachtwoord
         gbc.gridx = 0;
         gbc.gridy = 3;
+        JLabel passwordLabel = new JLabel("Wachtwoord:");
+        passwordLabel.setFont(labelFont);
+        passwordLabel.setForeground(labelColor);
+        formPanel.add(passwordLabel, gbc);
+
+        gbc.gridx = 1;
+        JPasswordField passwordField = new JPasswordField(student.getPassword());
+        styleTextField(passwordField, fieldFont, fieldBg, fieldFg, fieldBorder);
+        formPanel.add(passwordField, gbc);
+
+        // Totaal EC
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        JLabel totalEcLabel = new JLabel("Totaal EC:");
+        totalEcLabel.setFont(labelFont);
+        totalEcLabel.setForeground(labelColor);
+        formPanel.add(totalEcLabel, gbc);
+
+        gbc.gridx = 1;
+        JTextField totalEcField = new JTextField(String.valueOf(student.getTotalEc()));
+        styleTextField(totalEcField, fieldFont, fieldBg, fieldFg, fieldBorder);
+        formPanel.add(totalEcField, gbc);
+
+        // Geslacht
+        gbc.gridx = 0;
+        gbc.gridy = 5;
         JLabel genderLabel = new JLabel("Geslacht:");
         genderLabel.setFont(labelFont);
         genderLabel.setForeground(labelColor);
@@ -215,7 +241,7 @@ public class OverzichtStudentenGUI {
 
         // Geboortedatum
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 6;
         JLabel birthdateLabel = new JLabel("Geboortedatum (YYYY-MM-DD):");
         birthdateLabel.setFont(labelFont);
         birthdateLabel.setForeground(labelColor);
@@ -242,6 +268,8 @@ public class OverzichtStudentenGUI {
                 updatedStudent.setFirstname(firstNameField.getText());
                 updatedStudent.setLastname(lastNameField.getText());
                 updatedStudent.setStudentnumber(studentNumberField.getText());
+                updatedStudent.setPassword(new String(passwordField.getPassword()));
+                updatedStudent.setTotalEc(Integer.parseInt(totalEcField.getText()));
                 updatedStudent.setGender((String) genderField.getSelectedItem());
                 updatedStudent.setBirthdate(birthdateField.getText());
 
@@ -341,13 +369,15 @@ public class OverzichtStudentenGUI {
         // Maak een Map voor de JSON data
         Map<String, Object> requestData = new HashMap<>();
 
-        // Gebruik student_id als identifier (of student_number als je dat prefereert)
+        // Gebruik student_id als identifier
         requestData.put("student_id", student.getId());
 
-        // Voeg alleen gewijzigde velden toe
+        // Voeg alle velden toe
         requestData.put("student_number", student.getStudentnumber());
         requestData.put("first_name", student.getFirstname());
         requestData.put("last_name", student.getLastname());
+        requestData.put("password", student.getPassword());
+        requestData.put("total_ec", student.getTotalEc());
         requestData.put("gender", student.getGender());
         requestData.put("birthdate", student.getBirthdate());
 
