@@ -63,8 +63,6 @@ public class AdminDashboard {
 
         frame.add(topBarPanel, BorderLayout.NORTH);
 
-//        frame.add(topBarPanel, BorderLayout.NORTH);
-//        frame.setVisible(true);
 
         // Hoofdpaneel voor knoppen
         JPanel mainButtonPanel = new JPanel();
@@ -72,13 +70,7 @@ public class AdminDashboard {
         mainButtonPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Kleinere marges
         mainButtonPanel.setOpaque(false);
 
-//        // Uitleg panel
-//        JPanel panel = new JPanel();
-//        panel.setLayout(new BorderLayout());
-//
-//        outputArea = new JTextArea();
-//        outputArea.setEditable(false);
-//        panel.add(new JScrollPane(outputArea), BorderLayout.CENTER);
+
 
         // Tekst "Toevoegen" (links)
         JLabel toevoegenLabel = new JLabel("Toevoegen");
@@ -159,11 +151,23 @@ public class AdminDashboard {
 
         // Derde rij (Cohorten en Semesters)
         JPanel bottomRowPanel = createButtonPanel();
-        JButton overviewCohortsButton = createStyledButton("Overzicht Cohorten", new Color(138, 43, 226), Color.WHITE); // #8A2BE2 (Blauwviolet)
-        overviewCohortsButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
-        overviewCohortsButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
-        overviewCohortsButton.addActionListener(e -> showOverview("Cohorten"));
-        bottomRowPanel.add(overviewCohortsButton);
+        JButton overviewExamsButton = createStyledButton("Overzicht Tentamens", new Color(138, 43, 226), Color.WHITE);
+        overviewExamsButton.setPreferredSize(new Dimension(100, 25));
+        overviewExamsButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        overviewExamsButton.addActionListener(e -> {
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    new OverzichtTentamensGUI();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(frame,
+                            "Kon tentamenbeheer niet openen: " + ex.getMessage(),
+                            "Fout", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
+            });
+        });
+
+        bottomRowPanel.add(overviewExamsButton);
 
         JButton overviewSemestersButton = createStyledButton("Overzicht Semesters", new Color(255, 105, 180), Color.WHITE); // #FF69B4 (Roze)
         overviewSemestersButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop

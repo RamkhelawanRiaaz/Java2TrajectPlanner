@@ -5,6 +5,14 @@ public class Course {
     private String course_code;
     private String course_description;
     private String block;
+    private int id;
+    private String code;
+    private String name;
+
+    // getters
+    public int getId() { return id; }
+    public String getCode() { return code; }
+    public String getName() { return name; }
 
     // Getters en setters
     public String getCourse_id() { return course_id; }
