@@ -15,7 +15,7 @@ public class AddStudentGUI {
     private JTextField nameField, studentNumberField, emailField, addressField, phoneField, cohortField;
     private JComboBox<String> genderComboBox;
     private JDatePickerImpl datePicker;
-    private JButton saveButton, cancelButton, clearButton;
+    private JButton saveButton, cancelButton, clearButton, fictieveDataButton;
 
     public AddStudentGUI() {
         frame = new JFrame("Student Toevoegen");
@@ -156,6 +156,12 @@ public class AddStudentGUI {
         clearButton.setPreferredSize(new Dimension(120, 25));
         mainPanel.add(clearButton, gbc);
 
+        fictieveDataButton = new JButton("Simuleer");
+        styleButton(fictieveDataButton, new Color(0, 0, 139));
+        fictieveDataButton.addActionListener(e -> fillWithFictieveData());
+        gbc.gridx = 1;
+        mainPanel.add(fictieveDataButton, gbc);
+
 
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 20, 0));
         buttonPanel.setOpaque(false);
@@ -217,16 +223,32 @@ public class AddStudentGUI {
             JOptionPane.showMessageDialog(frame, "Vul alle velden in!", "Fout", JOptionPane.ERROR_MESSAGE);
         }
     }
-         private void clearFields() {
-            nameField.setText("");
-            studentNumberField.setText("");
-            emailField.setText("");
-            addressField.setText("");
-            phoneField.setText("");
-            cohortField.setText("");
-            genderComboBox.setSelectedIndex(0);
-            datePicker.getModel().setValue(null);
-         }
+    private void clearFields() {
+        nameField.setText("");
+        studentNumberField.setText("");
+        emailField.setText("");
+        addressField.setText("");
+        phoneField.setText("");
+        cohortField.setText("");
+        genderComboBox.setSelectedIndex(0);
+        datePicker.getModel().setValue(null);
+    }
+
+    private void fillWithFictieveData() {
+        nameField.setText("Jessica Jones");
+        studentNumberField.setText("SE/1123/0000");
+        emailField.setText("Jess@gmail.com");
+        addressField.setText("Anamoestraat, 34");
+        phoneField.setText("8658851");
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2000, Calendar.MAY, 12);
+        java.util.Date date = calendar.getTime();
+        UtilDateModel model = (UtilDateModel) datePicker.getModel();
+        model.setValue(date);
+        cohortField.setText("2023");
+        genderComboBox.setSelectedItem("Vrouw");
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AddStudentGUI::new);

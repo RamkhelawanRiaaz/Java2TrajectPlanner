@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 public class AddCijfersGUI {
     private JFrame frame;
     private JTextField studentField, vakField, semesterField, cohortField, cijferField;
-    private JButton saveButton, cancelButton, clearButton;
+    private JButton saveButton, cancelButton, clearButton, fictieveDataButton;
 
     public AddCijfersGUI() {
         frame = new JFrame("Cijfer Toevoegen");
@@ -102,6 +102,12 @@ public class AddCijfersGUI {
         gbc.gridwidth = 1;
         mainPanel.add(clearButton, gbc);
 
+        fictieveDataButton = new JButton("Simuleer");
+        styleButton(fictieveDataButton, new Color(0, 0, 139));
+        fictieveDataButton.addActionListener(e -> fillWithFictieveData());
+        gbc.gridy = 9;
+        mainPanel.add(fictieveDataButton, gbc);
+
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 20, 0));
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 100, 20, 100));
@@ -164,6 +170,14 @@ public class AddCijfersGUI {
         semesterField.setText("");
         cohortField.setText("");
         cijferField.setText("");
+    }
+
+    private void fillWithFictieveData() {
+        studentField.setText("SE/1123/000");
+        vakField.setText("Database");
+        semesterField.setText("Semester 2");
+        cohortField.setText("2023");
+        cijferField.setText("8.5");
     }
 
     public static void main(String[] args) {
