@@ -1,7 +1,6 @@
 import com.google.gson.annotations.SerializedName;
 
 public class Exam {
-    @SerializedName("id")
     private int id;
 
     @SerializedName("course_id")
@@ -11,25 +10,25 @@ public class Exam {
     private String courseName;
 
     private int semester;
-
-    @SerializedName("type")
     private String type;
-
-    @SerializedName("date")
     private String date;
 
-    // getters en setters
+    // Getters en setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+
     public int getCourseId() { return courseId; }
     public void setCourseId(int courseId) { this.courseId = courseId; }
+
     public String getCourseName() { return courseName; }
     public void setCourseName(String courseName) { this.courseName = courseName; }
+
     public int getSemester() { return semester; }
     public void setSemester(int semester) { this.semester = semester; }
+
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
+
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
 }
-

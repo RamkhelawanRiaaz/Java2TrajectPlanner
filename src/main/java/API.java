@@ -75,69 +75,59 @@ public class API {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 200) {
+            System.out.println("API response: " + response.body());
+
+            Gson gson = new Gson();
             return gson.fromJson(response.body(), new TypeToken<List<Exam>>(){}.getType());
         } else {
             throw new RuntimeException("Failed to fetch exams: " + response.statusCode());
         }
     }
-
     public static String updateExam(Exam exam) throws Exception {
         try {
             if (exam.getType() == null && exam.getDate() == null) {
                 throw new IllegalArgumentException("Minimaal één veld (type of datum) kiezen voor update");
             }
-            Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("exam_id", exam.getId());
 
-            if (exam.getCourseId() > 0) {
-                requestBody.put("code", String.valueOf(exam.getCourseId())); // Als string
-            }
+            JsonObject requestBody = new JsonObject();
+            requestBody.addProperty("exam_id", exam.getId());
 
+            // Alleen type toevoegen als het is gewijzigd/niet null is
             if (exam.getType() != null) {
                 if (!exam.getType().equals("Regulier") && !exam.getType().equals("Her")) {
                     throw new IllegalArgumentException("Type moet 'Regulier' of 'Her' zijn");
                 }
-                requestBody.put("exam_type", exam.getType());
+                requestBody.addProperty("exam_type", exam.getType());
             }
 
-            if (exam.getDate() != null) {
-                // Controleer datumformaat
-                if (!exam.getDate().matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$")) {
-                    throw new IllegalArgumentException("Ongeldig datumformaat. Gebruik YYYY-MM-DD HH:MM:SS");
+            // Alleen datum toevoegen als het is gewijzigd/niet null is
+            if (exam.getDate() != null && !exam.getDate().isEmpty()) {
+                if (!exam.getDate().matches("^\\d{4}-\\d{2}-\\d{2}( \\d{2}:\\d{2}:\\d{2})?$")) {
+                    throw new IllegalArgumentException("Ongeldig datumformaat. Gebruik YYYY-MM-DD of YYYY-MM-DD HH:MM:SS");
                 }
-                requestBody.put("exam_datetime", exam.getDate());
+                requestBody.addProperty("exam_datetime", exam.getDate());
             }
+
             String jsonBody = gson.toJson(requestBody);
             System.out.println("Sending JSON to API: " + jsonBody);
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/exams")) // Endpoint volgens specificatie
+                    .uri(URI.create(BASE_URL + "/exams"))
                     .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
                     .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("API response status: " + response.statusCode());
-            System.out.println("API response body: " + response.body());
 
-            switch (response.statusCode()) {
-                case 200:
-                    return response.body();
-                case 400:
-                    throw new RuntimeException("Bad Request: " + parseApiError(response.body()));
-                case 404:
-                    throw new RuntimeException("Exam not found: " + parseApiError(response.body()));
-                case 500:
-                    throw new RuntimeException("Server Error: " + parseApiError(response.body()));
-                default:
-                    throw new RuntimeException("Unexpected response: " + response.statusCode() + " - " + response.body());
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Update failed: " + response.statusCode() + " - " + response.body());
             }
+            return response.body();
         } catch (Exception e) {
             System.err.println("Error in updateExam: " + e.getMessage());
             throw e;
         }
     }
-
 
 
     public static String deleteExam(int examId) throws Exception {

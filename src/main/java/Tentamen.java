@@ -4,68 +4,38 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.List;
-
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 
 public class Tentamen extends JFrame {
     private JTable table;
     private DefaultTableModel tableModel;
     private JButton refreshButton, updateButton, deleteButton;
-    private HttpClient httpClient;
     private Gson gson;
 
     // Dark mode kleurenpalet
-    private final Color PRIMARY_COLOR = new Color(100, 149, 237);  // Lichtblauw
-    private final Color SECONDARY_COLOR = new Color(45, 45, 45);   // Donkergrijs
-    private final Color ACCENT_COLOR = new Color(255, 87, 34);     // Oranje
-    private final Color BACKGROUND_COLOR = new Color(30, 30, 30);  // Zeer donkergrijs
-    private final Color TEXT_COLOR = new Color(220, 220, 220);     // Lichtgrijs
-    private final Color TABLE_HEADER_COLOR = new Color(60, 60, 60); // Donkergrijs
-    private final Color TABLE_SELECTION_COLOR = new Color(65, 105, 225); // Koningsblauw
-    private final Color TABLE_GRID_COLOR = new Color(70, 70, 70);  // Donkergrijze gridlijnen
-
-    // Model class voor tentamens
-    class Exam {
-        int id;
-        int course_id;
-        String course_name;
-        int semester;
-        String type;
-        String date;
-
-        public int getId() { return id; }
-        public int getCourse_id() { return course_id; }
-        public String getCourse_name() { return course_name; }
-        public int getSemester() { return semester; }
-        public String getType() { return type; }
-        public String getDate() { return date; }
-    }
+    private final Color PRIMARY_COLOR = new Color(100, 149, 237);
+    private final Color SECONDARY_COLOR = new Color(45, 45, 45);
+    private final Color ACCENT_COLOR = new Color(255, 87, 34);
+    private final Color BACKGROUND_COLOR = new Color(30, 30, 30);
+    private final Color TEXT_COLOR = new Color(220, 220, 220);
+    private final Color TABLE_HEADER_COLOR = new Color(60, 60, 60);
+    private final Color TABLE_SELECTION_COLOR = new Color(65, 105, 225);
+    private final Color TABLE_GRID_COLOR = new Color(70, 70, 70);
 
     public Tentamen() {
         super("Overzicht Tentamens");
-        httpClient = HttpClient.newHttpClient();
         gson = new Gson();
-
         setupUI();
         loadExamData();
-
         setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    // ... [behoud alle bestaande imports en variabelen] ...
-
     private void setupUI() {
-        // Main panel with dark styling
+        // Main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -86,19 +56,14 @@ public class Tentamen extends JFrame {
             }
         };
 
-        // Dark table styling with hover effects
+        // Table styling
         table = new JTable(tableModel) {
             private int hoverRowIndex = -1;
 
             @Override
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
-
-                if (row % 2 == 0) {
-                    c.setBackground(BACKGROUND_COLOR);
-                } else {
-                    c.setBackground(new Color(40, 40, 40));
-                }
+                c.setBackground(row % 2 == 0 ? BACKGROUND_COLOR : new Color(40, 40, 40));
                 c.setForeground(TEXT_COLOR);
 
                 if (row == hoverRowIndex) {
@@ -109,7 +74,6 @@ public class Tentamen extends JFrame {
                     c.setBackground(TABLE_SELECTION_COLOR);
                     c.setForeground(Color.WHITE);
                 }
-
                 return c;
             }
 
@@ -133,6 +97,7 @@ public class Tentamen extends JFrame {
             }
         };
 
+        // Table configuration
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -143,23 +108,19 @@ public class Tentamen extends JFrame {
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setBackground(SECONDARY_COLOR);
 
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                table.repaint();
-            }
-        });
-
+        // Table header
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         header.setBackground(TABLE_HEADER_COLOR);
         header.setForeground(TEXT_COLOR);
         header.setReorderingAllowed(false);
 
+        // Scroll pane
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(BACKGROUND_COLOR);
 
+        // Buttons
         refreshButton = createStyledButton("Vernieuwen", PRIMARY_COLOR);
         updateButton = createStyledButton("Bijwerken", new Color(76, 175, 80));
         deleteButton = createStyledButton("Verwijderen", ACCENT_COLOR);
@@ -170,11 +131,12 @@ public class Tentamen extends JFrame {
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
 
+        // Add components to main panel
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
         add(mainPanel);
 
+        // Button listeners
         refreshButton.addActionListener(e -> loadExamData());
         updateButton.addActionListener(e -> updateExam());
         deleteButton.addActionListener(e -> deleteExam());
@@ -201,48 +163,38 @@ public class Tentamen extends JFrame {
                 button.setBackground(bgColor);
             }
         });
-
         return button;
     }
 
     private void loadExamData() {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://trajectplannerapi.dulamari.com/exams"))
-                    .GET()
-                    .build();
+            List<Exam> exams = API.getExams();
 
-            httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(HttpResponse::body)
-                    .thenAccept(this::parseExamData)
-                    .exceptionally(e -> {
-                        showError("Fout bij ophalen data: " + e.getMessage());
-                        return null;
-                    });
-        } catch (Exception ex) {
-            showError("Fout: " + ex.getMessage());
-        }
-    }
+            // Debug: toon ontvangen examens
+            System.out.println("Aantal examens ontvangen: " + exams.size());
+            for (Exam exam : exams) {
+                System.out.println("Exam: " + exam.getId() +
+                        ", Course: " + exam.getCourseId() +
+                        ", Name: " + exam.getCourseName());
+            }
 
-    private void parseExamData(String jsonData) {
-        SwingUtilities.invokeLater(() -> {
-            tableModel.setRowCount(0);
-            try {
-                List<Exam> exams = gson.fromJson(jsonData, new TypeToken<List<Exam>>(){}.getType());
+            SwingUtilities.invokeLater(() -> {
+                tableModel.setRowCount(0);
                 for (Exam exam : exams) {
                     tableModel.addRow(new Object[]{
-                            exam.id,
-                            exam.course_id,
-                            exam.course_name,
-                            exam.semester,
-                            exam.type,
-                            exam.date
+                            exam.getId(),
+                            exam.getCourseId(),
+                            exam.getCourseName(),
+                            exam.getSemester(),
+                            exam.getType(),
+                            exam.getDate()
                     });
                 }
-            } catch (Exception e) {
-                showError("Fout bij verwerken data: " + e.getMessage());
-            }
-        });
+            });
+        } catch (Exception e) {
+            showError("Fout bij ophalen data: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void updateExam() {
@@ -256,15 +208,14 @@ public class Tentamen extends JFrame {
         final String currentType = (String) tableModel.getValueAt(selectedRow, 4);
         final String currentDate = (String) tableModel.getValueAt(selectedRow, 5);
 
-        final String formattedCurrentDate = currentDate != null && currentDate.length() == 10 ?
-                currentDate + " 00:00:00" : currentDate;
-
+        // Dialog setup
         final JDialog dialog = new JDialog(this, "Tentamen bijwerken", true);
         dialog.setLayout(new BorderLayout());
         dialog.setSize(800, 650);
         dialog.setLocationRelativeTo(this);
         dialog.getContentPane().setBackground(BACKGROUND_COLOR);
 
+        // Content panel
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         contentPanel.setBackground(BACKGROUND_COLOR);
@@ -273,6 +224,7 @@ public class Tentamen extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        // Type field
         gbc.gridx = 0; gbc.gridy = 0;
         JLabel typeLabel = new JLabel("Type (Regulier/Her):");
         typeLabel.setForeground(TEXT_COLOR);
@@ -280,31 +232,21 @@ public class Tentamen extends JFrame {
 
         gbc.gridx = 1; gbc.gridy = 0;
         final JTextField typeField = new JTextField(currentType, 20);
-        typeField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        typeField.setBackground(SECONDARY_COLOR);
-        typeField.setForeground(TEXT_COLOR);
-        typeField.setCaretColor(TEXT_COLOR);
+        styleTextField(typeField);
         contentPanel.add(typeField, gbc);
 
+        // Date field
         gbc.gridx = 0; gbc.gridy = 1;
-        JLabel dateLabel = new JLabel("Datum (YYYY-MM-DD HH:MM:SS):");
+        JLabel dateLabel = new JLabel("Datum (YYYY-MM-DD):");
         dateLabel.setForeground(TEXT_COLOR);
         contentPanel.add(dateLabel, gbc);
 
         gbc.gridx = 1; gbc.gridy = 1;
-        final JFormattedTextField dateField;
-        try {
-            dateField = new JFormattedTextField(new javax.swing.text.MaskFormatter("####-##-## ##:##:##"));
-            dateField.setValue(formattedCurrentDate);
-        } catch (java.text.ParseException e) {
-            throw new RuntimeException("Failed to create date formatter", e);
-        }
-        dateField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        dateField.setBackground(SECONDARY_COLOR);
-        dateField.setForeground(TEXT_COLOR);
-        dateField.setCaretColor(TEXT_COLOR);
+        final JTextField dateField = new JTextField(currentDate, 20);
+        styleTextField(dateField);
         contentPanel.add(dateField, gbc);
 
+        // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         buttonPanel.setBackground(BACKGROUND_COLOR);
 
@@ -314,59 +256,33 @@ public class Tentamen extends JFrame {
         JButton saveButton = createStyledButton("Opslaan", PRIMARY_COLOR);
         saveButton.addActionListener(e -> {
             try {
-                JsonObject updateData = new JsonObject();
-                updateData.addProperty("exam_id", examId);
+                Exam exam = new Exam();
+                exam.setId(examId);
 
-                boolean hasChanges = false;
-
-                if (!typeField.getText().equals(currentType)) {
-                    String newType = typeField.getText().trim();
-                    if (newType.equals("Regulier") || newType.equals("Her")) {
-                        updateData.addProperty("exam_type", newType);
-                        hasChanges = true;
-                    } else {
-                        showError("Type moet 'Regulier' of 'Her' zijn");
-                        return;
-                    }
+                // Alleen type instellen als het is gewijzigd
+                String newType = typeField.getText().trim();
+                if (!newType.equals(currentType)) {
+                    exam.setType(newType);
                 }
 
+                // Alleen datum instellen als het is gewijzigd
                 String newDate = dateField.getText().trim();
-                if (!newDate.equals(formattedCurrentDate)) {
-                    if (newDate.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$")) {
-                        updateData.addProperty("EXM_DATETIME", newDate);
-                        hasChanges = true;
-                    } else {
-                        showError("Ongeldig datumformaat. Gebruik YYYY-MM-DD HH:MM:SS");
-                        return;
-                    }
+                if (!newDate.equals(currentDate)) {
+                    exam.setDate(newDate);
                 }
 
-                if (!hasChanges) {
+                // Controleer of er iets is gewijzigd
+                if (exam.getType() == null && exam.getDate() == null) {
                     showWarning("Geen wijzigingen gedetecteerd");
                     return;
                 }
 
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("https://trajectplannerapi.dulamari.com/exams"))
-                        .header("Content-Type", "application/json")
-                        .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(updateData)))
-                        .build();
-
-                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                        .thenAccept(response -> {
-                            if (response.statusCode() == 200) {
-                                SwingUtilities.invokeLater(() -> {
-                                    JOptionPane.showMessageDialog(dialog, "Tentamen succesvol bijgewerkt!");
-                                    loadExamData();
-                                    dialog.dispose();
-                                });
-                            } else {
-                                showError("Fout bij bijwerken: " + response.body());
-                            }
-                        });
+                API.updateExam(exam);
+                JOptionPane.showMessageDialog(dialog, "Tentamen succesvol bijgewerkt!");
+                loadExamData();
+                dialog.dispose();
             } catch (Exception ex) {
-                showError("Fout: " + ex.getMessage());
-                ex.printStackTrace();
+                showError("Fout bij bijwerken: " + ex.getMessage());
             }
         });
 
@@ -375,6 +291,14 @@ public class Tentamen extends JFrame {
         dialog.add(contentPanel, BorderLayout.CENTER);
         dialog.add(buttonPanel, BorderLayout.SOUTH);
         dialog.setVisible(true);
+    }
+
+    private void styleTextField(JTextField textField) {
+        textField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        textField.setBackground(SECONDARY_COLOR);
+        textField.setForeground(TEXT_COLOR);
+        textField.setCaretColor(TEXT_COLOR);
+        textField.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     }
 
     private void deleteExam() {
@@ -386,66 +310,22 @@ public class Tentamen extends JFrame {
 
         int examId = (int) tableModel.getValueAt(selectedRow, 0);
 
-        Object[] options = {"Verwijderen", "Annuleren"};
-        int confirm = JOptionPane.showOptionDialog(this,
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
                 "Weet u zeker dat u tentamen ID " + examId + " wilt verwijderen?",
                 "Bevestig verwijderen",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.WARNING_MESSAGE,
-                null,
-                options,
-                options[1]);
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
 
-        if (confirm == 0) { // "Verwijderen" selected
+        if (confirm == JOptionPane.YES_OPTION) {
             try {
-                JsonObject requestBody = new JsonObject();
-                requestBody.addProperty("exam_id", examId);
-                String jsonBody = gson.toJson(requestBody);
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("https://trajectplannerapi.dulamari.com/exams"))
-                        .header("Content-Type", "application/json")
-                        .header("Accept", "application/json")
-                        .method("DELETE", HttpRequest.BodyPublishers.ofString(jsonBody))
-                        .timeout(Duration.ofSeconds(15))
-                        .build();
-
-                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
-                if (response.statusCode() == 200) {
-                    JOptionPane.showMessageDialog(this, "Tentamen succesvol verwijderd!");
-                    loadExamData();
-                } else {
-                    handleDeleteError(response.statusCode(), response.body());
-                }
+                API.deleteExam(examId);
+                JOptionPane.showMessageDialog(this, "Tentamen succesvol verwijderd!");
+                loadExamData();
             } catch (Exception ex) {
-                showError("Er ging iets mis: " + ex.getMessage());
-                ex.printStackTrace();
+                showError("Fout bij verwijderen: " + ex.getMessage());
             }
         }
-    }
-
-    private void handleDeleteError(int statusCode, String responseBody) {
-        String errorMessage = "Serverfout bij verwijderen (Code: " + statusCode + ")";
-
-        if (responseBody != null && !responseBody.trim().isEmpty()) {
-            try {
-                JsonElement jsonElement = JsonParser.parseString(responseBody);
-                if (jsonElement.isJsonObject()) {
-                    JsonObject errorResponse = jsonElement.getAsJsonObject();
-                    if (errorResponse.has("message")) {
-                        errorMessage += "\n" + errorResponse.get("message").getAsString();
-                    }
-                } else {
-                    errorMessage += "\n" + responseBody;
-                }
-            } catch (JsonSyntaxException e) {
-                errorMessage += "\nResponse: " + responseBody;
-            }
-        } else {
-            errorMessage += "\nGeen details beschikbaar";
-        }
-
-        showError(errorMessage);
     }
 
     private void showError(String message) {
@@ -469,11 +349,6 @@ public class Tentamen extends JFrame {
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            UIManager.put("Button.arc", 20);
-            UIManager.put("Component.arc", 20);
-            UIManager.put("ProgressBar.arc", 20);
-            UIManager.put("TextComponent.arc", 20);
-
             UIManager.put("OptionPane.background", new Color(30, 30, 30));
             UIManager.put("Panel.background", new Color(30, 30, 30));
             UIManager.put("OptionPane.messageForeground", Color.WHITE);
