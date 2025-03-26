@@ -9,6 +9,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,15 +23,12 @@ public class API {
     private static final HttpClient client = HttpClient.newHttpClient();
     private static final Gson gson = new Gson();
 
-    // Methode om studenten op te halen
     public static List<Student> getStudents() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + STUDENTS_ENDPOINT))
                 .GET()
                 .build();
-
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
         if (response.statusCode() == 200) {
             Gson gson = new Gson();
             return gson.fromJson(response.body(), new TypeToken<List<Student>>() {}.getType());
@@ -39,15 +37,12 @@ public class API {
         }
     }
 
-    // Methode om semesters op te halen
     public static List<Semester> getSemesters() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + SEMESTERS_ENDPOINT))
                 .GET()
                 .build();
-
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
         if (response.statusCode() == 200) {
             Gson gson = new Gson();
             return gson.fromJson(response.body(), new TypeToken<List<Semester>>() {}.getType());
@@ -56,15 +51,12 @@ public class API {
         }
     }
 
-    // Methode om cijfers op te halen
     public static List<Grade> getGrades() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + SCORES_ENDPOINT))
                 .GET()
                 .build();
-
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
         if (response.statusCode() == 200) {
             Gson gson = new Gson();
             return gson.fromJson(response.body(), new TypeToken<List<Grade>>() {}.getType());
@@ -82,127 +74,116 @@ public class API {
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        // Debug output
-        System.out.println("API response: " + response.body());
-
         if (response.statusCode() == 200) {
             return gson.fromJson(response.body(), new TypeToken<List<Exam>>(){}.getType());
         } else {
             throw new RuntimeException("Failed to fetch exams: " + response.statusCode());
         }
     }
+
     public static String updateExam(Exam exam) throws Exception {
         try {
-            // 1. Debug: Toon alle relevante informatie
-            System.out.println("Exam being updated: " + exam.getId());
-            System.out.println("Current course_id: " + exam.getCourseId());
-            System.out.println("Current course_name: " + exam.getCourseName());
-
-            // 2. Bereid request voor
+            if (exam.getType() == null && exam.getDate() == null) {
+                throw new IllegalArgumentException("Minimaal één veld (type of datum) kiezen voor update");
+            }
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("exam_id", exam.getId());
 
-            // Belangrijke aanpassing: probeer beide varianten
-            if (exam.getCourseId() == 1) {
-                // Speciale behandeling voor course 1
-                requestBody.put("code", 1);  // als integer
-                requestBody.put("course_id", 1); // dubbele velden
-            } else {
-                requestBody.put("code", exam.getCourseId());
+            if (exam.getCourseId() > 0) {
+                requestBody.put("code", String.valueOf(exam.getCourseId())); // Als string
             }
 
-            requestBody.put("exam_type", exam.getType());
-            requestBody.put("exam_datetime", exam.getDate().split(" ")[0]);
+            if (exam.getType() != null) {
+                if (!exam.getType().equals("Regulier") && !exam.getType().equals("Her")) {
+                    throw new IllegalArgumentException("Type moet 'Regulier' of 'Her' zijn");
+                }
+                requestBody.put("exam_type", exam.getType());
+            }
 
-            // 3. Voeg optionele velden toe die mogelijk vereist zijn
-            requestBody.put("semester", exam.getSemester());
-            requestBody.put("course_name", exam.getCourseName());
-
+            if (exam.getDate() != null) {
+                // Controleer datumformaat
+                if (!exam.getDate().matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$")) {
+                    throw new IllegalArgumentException("Ongeldig datumformaat. Gebruik YYYY-MM-DD HH:MM:SS");
+                }
+                requestBody.put("exam_datetime", exam.getDate());
+            }
             String jsonBody = gson.toJson(requestBody);
-            System.out.println("Final JSON being sent:\n" + jsonBody);
-
-            // 4. Verstuur request met extra headers
+            System.out.println("Sending JSON to API: " + jsonBody);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/exams"))
+                    .uri(URI.create(BASE_URL + "/exams")) // Endpoint volgens specificatie
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
                     .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("API response status: " + response.statusCode());
+            System.out.println("API response body: " + response.body());
 
-            // 5. Uitgebreide response logging
-            System.out.println("HTTP Status: " + response.statusCode());
-            System.out.println("Response Body: " + response.body());
-
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("API Error: " + response.body());
+            switch (response.statusCode()) {
+                case 200:
+                    return response.body();
+                case 400:
+                    throw new RuntimeException("Bad Request: " + parseApiError(response.body()));
+                case 404:
+                    throw new RuntimeException("Exam not found: " + parseApiError(response.body()));
+                case 500:
+                    throw new RuntimeException("Server Error: " + parseApiError(response.body()));
+                default:
+                    throw new RuntimeException("Unexpected response: " + response.statusCode() + " - " + response.body());
             }
-            return response.body();
         } catch (Exception e) {
-            System.err.println("Critical error during update:");
-            e.printStackTrace();
+            System.err.println("Error in updateExam: " + e.getMessage());
             throw e;
         }
     }
+
+
 
     public static String deleteExam(int examId) throws Exception {
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + "/exams/" + examId)) // Endpoint met exam ID
-                    .header("Content-Type", "application/json")
-                    .DELETE()
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("Delete response: " + response.body());
-
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Delete failed with status: " + response.statusCode());
-            }
-            return response.body();
-        } catch (Exception e) {
-            System.err.println("Error deleting exam: " + e.getMessage());
-            throw e;
-        }
-    }
-
-    public static List<Course> getCourses() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/courses")) // Pas aan naar juiste endpoint
-                .GET()
+                .uri(URI.create(BASE_URL + "/exams/" + examId))
+                .header("Content-Type", "application/json")
+                .DELETE()
                 .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() == 200) {
-            return gson.fromJson(response.body(), new TypeToken<List<Course>>(){}.getType());
-        } else {
-            throw new RuntimeException("Failed to fetch courses: " + response.statusCode());
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Delete failed with status: " + response.statusCode());
         }
+        return response.body();
     }
 
-    // Methode om cijfers met studentnamen op te halen
-    public static List<Grade> getScoresWithStudentNames() throws Exception {
-        // Haal de cijfers op
-        List<Grade> scores = getGrades();
 
-        // Haal de studenten op
+    public static List<Grade> getScoresWithStudentNames() throws Exception {
+        List<Grade> scores = getGrades();
         List<Student> students = getStudents();
 
-        // Maak een map van student_id naar studentnaam voor snelle opzoekingen
         Map<String, String> studentIdToNameMap = new HashMap<>();
         for (Student student : students) {
             studentIdToNameMap.put(student.getId(), student.getFirstname() + " " + student.getLastname());
         }
-
-        // Voeg de volledige naam toe aan elke score
         for (Grade grade : scores) {
             String fullName = studentIdToNameMap.get(grade.getStudent_id());
             grade.setStudent_full_name(fullName);
         }
-
         return scores;
+    }
+
+
+    private static String parseApiError(String responseBody) {
+        try {
+            JsonObject errorResponse = gson.fromJson(responseBody, JsonObject.class);
+            if (errorResponse.has("error")) {
+                return errorResponse.get("error").getAsString();
+            }
+            if (errorResponse.has("message")) {
+                return errorResponse.get("message").getAsString();
+            }
+        } catch (Exception e) {
+        }
+        return responseBody;
     }
 
 }
