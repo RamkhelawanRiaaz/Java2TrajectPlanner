@@ -94,7 +94,6 @@ public class Tentamen extends JFrame {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
 
-                // Standaard kleuren
                 if (row % 2 == 0) {
                     c.setBackground(BACKGROUND_COLOR);
                 } else {
@@ -102,12 +101,10 @@ public class Tentamen extends JFrame {
                 }
                 c.setForeground(TEXT_COLOR);
 
-                // Hover effect
                 if (row == hoverRowIndex) {
-                    c.setBackground(new Color(80, 80, 80)); // Donkergrijs voor hover
+                    c.setBackground(new Color(80, 80, 80));
                 }
 
-                // Selectie effect
                 if (isRowSelected(row)) {
                     c.setBackground(TABLE_SELECTION_COLOR);
                     c.setForeground(Color.WHITE);
@@ -136,7 +133,6 @@ public class Tentamen extends JFrame {
             }
         };
 
-        // Verbeterde selectie-instellingen
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -147,7 +143,6 @@ public class Tentamen extends JFrame {
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setBackground(SECONDARY_COLOR);
 
-        // Maak selectie duidelijker
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -155,7 +150,6 @@ public class Tentamen extends JFrame {
             }
         });
 
-        // Table header styling
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         header.setBackground(TABLE_HEADER_COLOR);
@@ -166,26 +160,21 @@ public class Tentamen extends JFrame {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(BACKGROUND_COLOR);
 
-        // Button styling
         refreshButton = createStyledButton("Vernieuwen", PRIMARY_COLOR);
         updateButton = createStyledButton("Bijwerken", new Color(76, 175, 80));
         deleteButton = createStyledButton("Verwijderen", ACCENT_COLOR);
 
-        // Button panel with dark layout
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 15));
         buttonPanel.setBackground(BACKGROUND_COLOR);
         buttonPanel.add(refreshButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
 
-        // Add components to main panel
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Add main panel to frame
         add(mainPanel);
 
-        // Event handlers
         refreshButton.addActionListener(e -> loadExamData());
         updateButton.addActionListener(e -> updateExam());
         deleteButton.addActionListener(e -> deleteExam());
@@ -263,23 +252,19 @@ public class Tentamen extends JFrame {
             return;
         }
 
-        // Haal huidige waarden op en maak ze final
         final int examId = (int) tableModel.getValueAt(selectedRow, 0);
         final String currentType = (String) tableModel.getValueAt(selectedRow, 4);
         final String currentDate = (String) tableModel.getValueAt(selectedRow, 5);
 
-        // Pas datum aan indien nodig
         final String formattedCurrentDate = currentDate != null && currentDate.length() == 10 ?
                 currentDate + " 00:00:00" : currentDate;
 
-        // Create a dark dialog
         final JDialog dialog = new JDialog(this, "Tentamen bijwerken", true);
         dialog.setLayout(new BorderLayout());
         dialog.setSize(800, 650);
         dialog.setLocationRelativeTo(this);
         dialog.getContentPane().setBackground(BACKGROUND_COLOR);
 
-        // Content panel
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
         contentPanel.setBackground(BACKGROUND_COLOR);
@@ -288,7 +273,6 @@ public class Tentamen extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Add components
         gbc.gridx = 0; gbc.gridy = 0;
         JLabel typeLabel = new JLabel("Type (Regulier/Her):");
         typeLabel.setForeground(TEXT_COLOR);
@@ -321,7 +305,6 @@ public class Tentamen extends JFrame {
         dateField.setCaretColor(TEXT_COLOR);
         contentPanel.add(dateField, gbc);
 
-        // Button panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
         buttonPanel.setBackground(BACKGROUND_COLOR);
 
@@ -389,7 +372,6 @@ public class Tentamen extends JFrame {
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(saveButton);
-
         dialog.add(contentPanel, BorderLayout.CENTER);
         dialog.add(buttonPanel, BorderLayout.SOUTH);
         dialog.setVisible(true);
@@ -404,7 +386,6 @@ public class Tentamen extends JFrame {
 
         int examId = (int) tableModel.getValueAt(selectedRow, 0);
 
-        // Dark confirmation dialog
         Object[] options = {"Verwijderen", "Annuleren"};
         int confirm = JOptionPane.showOptionDialog(this,
                 "Weet u zeker dat u tentamen ID " + examId + " wilt verwijderen?",
@@ -420,7 +401,6 @@ public class Tentamen extends JFrame {
                 JsonObject requestBody = new JsonObject();
                 requestBody.addProperty("exam_id", examId);
                 String jsonBody = gson.toJson(requestBody);
-
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create("https://trajectplannerapi.dulamari.com/exams"))
                         .header("Content-Type", "application/json")
@@ -487,7 +467,6 @@ public class Tentamen extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Set dark look and feel
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             UIManager.put("Button.arc", 20);
@@ -495,7 +474,6 @@ public class Tentamen extends JFrame {
             UIManager.put("ProgressBar.arc", 20);
             UIManager.put("TextComponent.arc", 20);
 
-            // Dark theme for JOptionPane
             UIManager.put("OptionPane.background", new Color(30, 30, 30));
             UIManager.put("Panel.background", new Color(30, 30, 30));
             UIManager.put("OptionPane.messageForeground", Color.WHITE);
