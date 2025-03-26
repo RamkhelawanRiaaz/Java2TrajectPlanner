@@ -1,3 +1,8 @@
+package GUI;
+
+import models.Course;
+import models.Semester;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -9,7 +14,7 @@ public class OverzichtSemestersGUI {
     private JTable semesterTable;
 
     public OverzichtSemestersGUI(List<Semester> semesters) {
-        System.out.println("OverzichtSemestersGUI wordt geopend met " + semesters.size() + " semesters.");
+        System.out.println("GUI.OverzichtSemestersGUI wordt geopend met " + semesters.size() + " semesters.");
 
         // Maak het hoofdvenster
         frame = new JFrame("Overzicht Semesters");
@@ -19,7 +24,7 @@ public class OverzichtSemestersGUI {
         frame.getContentPane().setBackground(new Color(30, 30, 30));  // Donkere achtergrond
 
         // Kolomnamen voor de tabel
-        String[] columnNames = {"Semester ID", "Semester Naam", "Cursussen"};
+        String[] columnNames = {"models.Semester ID", "models.Semester Naam", "Cursussen"};
 
         // Data voor de tabel
         Object[][] data = new Object[semesters.size()][3];
@@ -31,7 +36,7 @@ public class OverzichtSemestersGUI {
             // Formatteer de cursussen als een string
             StringBuilder coursesString = new StringBuilder();
             for (Course course : semester.getCourses()) {
-                coursesString.append(course.getCourse_name()).append(" (").append(course.getCourse_code()).append("), ");
+                coursesString.append(course.getName()).append(" (").append(course.getCode()).append("), ");
             }
             data[i][2] = coursesString.toString();
         }

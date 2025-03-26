@@ -1,3 +1,5 @@
+package models;
+
 public class Exam {
     private int id;
     private int course_id;
@@ -22,7 +24,7 @@ public class Exam {
 
     @Override
     public String toString() {
-        return "Exam{" +
+        return "models.Exam{" +
                 "id=" + id +
                 ", course_id=" + course_id +
                 ", course_name='" + course_name + '\'' +

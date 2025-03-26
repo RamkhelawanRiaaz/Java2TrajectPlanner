@@ -1,31 +1,29 @@
+package GUI;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class AddCijfersGUI {
+public class AddVakGUI {
     private JFrame frame;
-    private JTextField studentField, vakField, semesterField, cohortField, cijferField;
+    private JTextField vakNaamField, semesterField, cohortField;
     private JButton saveButton, cancelButton, clearButton;
 
-    public AddCijfersGUI() {
-        frame = new JFrame("Cijfer Toevoegen");
+    public AddVakGUI() {
+        frame = new JFrame("Vak Toevoegen");
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-        frame.getContentPane().setBackground(new Color(30, 30, 30)); // Donkergrijze achtergrond
+        frame.getContentPane().setBackground(new Color(30, 30, 30));
 
         JPanel titlePanel = new JPanel();
         titlePanel.setOpaque(false);
         titlePanel.setBorder(BorderFactory.createEmptyBorder(50, 0, 30, 0));
 
-        JLabel titleLabel = new JLabel("Cijfer Toevoegen", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Vak Toevoegen", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 42));
-        titleLabel.setForeground(new Color(211, 85, 0)); // Oranje tekst
+        titleLabel.setForeground(new Color(211, 85, 0));
         titlePanel.add(titleLabel);
-
-        frame.add(titlePanel, BorderLayout.NORTH);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setOpaque(false);
@@ -35,34 +33,22 @@ public class AddCijfersGUI {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
 
-        JLabel studentLabel = new JLabel("Student Nummer:");
-        studentLabel.setFont(new Font("Arial", Font.PLAIN, 20));
-        studentLabel.setForeground(Color.WHITE);
+        JLabel vakNaamLabel = new JLabel("Vak Naam:");
+        vakNaamLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+        vakNaamLabel.setForeground(Color.WHITE);
         gbc.gridy = 0;
-        mainPanel.add(studentLabel, gbc);
+        mainPanel.add(vakNaamLabel, gbc);
 
-        studentField = new JTextField(20);
-        studentField.setFont(new Font("Arial", Font.PLAIN, 20));
+        vakNaamField = new JTextField(20);
+        vakNaamField.setFont(new Font("Arial", Font.PLAIN, 20));
         gbc.gridx = 1;
-        mainPanel.add(studentField, gbc);
-
-        JLabel vakLabel = new JLabel("Vak Naam:");
-        vakLabel.setFont(new Font("Arial", Font.PLAIN, 20));
-        vakLabel.setForeground(Color.WHITE);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        mainPanel.add(vakLabel, gbc);
-
-        vakField = new JTextField(20);
-        vakField.setFont(new Font("Arial", Font.PLAIN, 20));
-        gbc.gridx = 1;
-        mainPanel.add(vakField, gbc);
+        mainPanel.add(vakNaamField, gbc);
 
         JLabel semesterLabel = new JLabel("Semester/Kwartaal:");
         semesterLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         semesterLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 1;
         mainPanel.add(semesterLabel, gbc);
 
         semesterField = new JTextField(20);
@@ -74,25 +60,13 @@ public class AddCijfersGUI {
         cohortLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         cohortLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 2;
         mainPanel.add(cohortLabel, gbc);
 
         cohortField = new JTextField(20);
         cohortField.setFont(new Font("Arial", Font.PLAIN, 20));
         gbc.gridx = 1;
         mainPanel.add(cohortField, gbc);
-
-        JLabel cijferLabel = new JLabel("Cijfer:");
-        cijferLabel.setFont(new Font("Arial", Font.PLAIN, 20));
-        cijferLabel.setForeground(Color.WHITE);
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        mainPanel.add(cijferLabel, gbc);
-
-        cijferField = new JTextField(20);
-        cijferField.setFont(new Font("Arial", Font.PLAIN, 20));
-        gbc.gridx = 1;
-        mainPanel.add(cijferField, gbc);
 
         clearButton = new JButton("Clear");
         styleButton(clearButton, Color.GRAY);  // Gray
@@ -107,8 +81,8 @@ public class AddCijfersGUI {
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 100, 20, 100));
 
         saveButton = new JButton("Opslaan");
-        styleButton(saveButton, new Color(211, 85, 0));  // Orange
-        saveButton.addActionListener(e -> saveCijfer());
+        styleButton(saveButton, new Color(211, 85, 0));
+        saveButton.addActionListener(e -> saveVak());
         buttonPanel.add(saveButton);
 
         cancelButton = new JButton("Annuleren");
@@ -117,6 +91,8 @@ public class AddCijfersGUI {
         cancelButton.addActionListener(e -> frame.dispose());
         buttonPanel.add(cancelButton);
 
+        // Voeg de panels toe aan het frame
+        frame.add(titlePanel, BorderLayout.NORTH);
         frame.add(mainPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -143,30 +119,25 @@ public class AddCijfersGUI {
         });
     }
 
-    private void saveCijfer() {
-        String student = studentField.getText();
-        String vak = vakField.getText();
+    private void saveVak() {
+        String vakNaam = vakNaamField.getText();
         String semester = semesterField.getText();
         String cohort = cohortField.getText();
-        String cijfer = cijferField.getText();
 
-        if (!student.isEmpty() && !vak.isEmpty() && !semester.isEmpty() && !cohort.isEmpty() && !cijfer.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Cijfer succesvol toegevoegd!", "Succes", JOptionPane.INFORMATION_MESSAGE);
+        if (!vakNaam.isEmpty() && !semester.isEmpty() && !cohort.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Vak succesvol toegevoegd!", "Succes", JOptionPane.INFORMATION_MESSAGE);
             frame.dispose();
         } else {
             JOptionPane.showMessageDialog(frame, "Vul alle velden in!", "Fout", JOptionPane.ERROR_MESSAGE);
         }
     }
-
     private void clearFields() {
-        studentField.setText("");
-        vakField.setText("");
+        vakNaamField.setText("");
         semesterField.setText("");
         cohortField.setText("");
-        cijferField.setText("");
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(AddCijfersGUI::new);
+        SwingUtilities.invokeLater(AddVakGUI::new);
     }
 }
