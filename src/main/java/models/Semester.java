@@ -1,3 +1,5 @@
+package models;
+
 import java.util.List;
 
 public class Semester {
@@ -15,7 +17,7 @@ public class Semester {
 
     @Override
     public String toString() {
-        return "Semester{" +
+        return "models.Semester{" +
                 "id='" + id + '\'' +
                 ", semester_name='" + semester_name + '\'' +
                 ", courses=" + courses +

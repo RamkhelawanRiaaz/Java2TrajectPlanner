@@ -1,3 +1,5 @@
+package GUI;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.*;
@@ -8,8 +10,12 @@ import java.net.*;
 import java.util.*;
 import java.util.List;
 
+import API_calls.API;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import models.Exam;
+import models.Grade;
+import models.Student;
 
 public class OverzichtStudentenGUI {
     private JFrame frame;
@@ -126,7 +132,7 @@ public class OverzichtStudentenGUI {
         StudentTableModel model = (StudentTableModel) studentTable.getModel();
         Student student = model.getStudentAt(row);
 
-        JDialog editDialog = new JDialog(frame, "Student Bewerken", true);
+        JDialog editDialog = new JDialog(frame, "models.Student Bewerken", true);
         editDialog.setSize(800, 700); // Iets groter gemaakt voor de extra velden
         editDialog.setLayout(new BorderLayout());
         editDialog.getContentPane().setBackground(new Color(30, 30, 30));
@@ -169,7 +175,7 @@ public class OverzichtStudentenGUI {
         formPanel.add(firstNameLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField firstNameField = new JTextField(student.getFirstname());
+        JTextField firstNameField = new JTextField(student.getFirst_name());
         styleTextField(firstNameField, fieldFont, fieldBg, fieldFg, fieldBorder);
         formPanel.add(firstNameField, gbc);
 
@@ -182,7 +188,7 @@ public class OverzichtStudentenGUI {
         formPanel.add(lastNameLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField lastNameField = new JTextField(student.getLastname());
+        JTextField lastNameField = new JTextField(student.getLast_name());
         styleTextField(lastNameField, fieldFont, fieldBg, fieldFg, fieldBorder);
         formPanel.add(lastNameField, gbc);
 
@@ -195,7 +201,7 @@ public class OverzichtStudentenGUI {
         formPanel.add(studentNumberLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField studentNumberField = new JTextField(student.getStudentnumber());
+        JTextField studentNumberField = new JTextField(student.getStudent_number());
         styleTextField(studentNumberField, fieldFont, fieldBg, fieldFg, fieldBorder);
         formPanel.add(studentNumberField, gbc);
 
@@ -221,7 +227,7 @@ public class OverzichtStudentenGUI {
         formPanel.add(totalEcLabel, gbc);
 
         gbc.gridx = 1;
-        JTextField totalEcField = new JTextField(String.valueOf(student.getTotalEc()));
+        JTextField totalEcField = new JTextField(String.valueOf(student.getTotal_ec()));
         styleTextField(totalEcField, fieldFont, fieldBg, fieldFg, fieldBorder);
         formPanel.add(totalEcField, gbc);
 
@@ -265,15 +271,16 @@ public class OverzichtStudentenGUI {
             try {
                 Student updatedStudent = new Student();
                 updatedStudent.setId(student.getId());
-                updatedStudent.setFirstname(firstNameField.getText());
-                updatedStudent.setLastname(lastNameField.getText());
-                updatedStudent.setStudentnumber(studentNumberField.getText());
+                updatedStudent.setFirst_name(firstNameField.getText());
+                updatedStudent.setLast_name(lastNameField.getText());
+                updatedStudent.setStudent_number(studentNumberField.getText());
                 updatedStudent.setPassword(new String(passwordField.getPassword()));
-                updatedStudent.setTotalEc(Integer.parseInt(totalEcField.getText()));
+                updatedStudent.setTotal_ec(Integer.parseInt(totalEcField.getText()));
                 updatedStudent.setGender((String) genderField.getSelectedItem());
                 updatedStudent.setBirthdate(birthdateField.getText());
 
-                updateStudentInAPI(updatedStudent);
+                new API().updateStudent(updatedStudent);
+
                 frame.dispose();
                 new OverzichtStudentenGUI(fetchStudents());
                 editDialog.dispose();
@@ -340,90 +347,21 @@ public class OverzichtStudentenGUI {
 
         int confirm = JOptionPane.showConfirmDialog(
                 frame,
-                "Weet u zeker dat u student " + student.getFirstname() + " " + student.getLastname() + " wilt verwijderen?",
+                "Weet u zeker dat u student " + student.getFirst_name() + " " + student.getLast_name() + " wilt verwijderen?",
                 "Bevestig verwijdering",
                 JOptionPane.YES_NO_OPTION
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
             try {
-                deleteStudentFromAPI(student.getId());
+                new API().deleteStudent(student.getId());
                 frame.dispose();
                 new OverzichtStudentenGUI(fetchStudents());
-                JOptionPane.showMessageDialog(frame, "Student succesvol verwijderd.", "Succes", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "models.Student succesvol verwijderd.", "Succes", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(frame, "Fout bij verwijderen student: " + e.getMessage(),
                         "Fout", JOptionPane.ERROR_MESSAGE);
             }
-        }
-    }
-
-    private void updateStudentInAPI(Student student) throws Exception {
-        String apiUrl = API_BASE_URL + "students";
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("PUT");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
-
-        // Maak een Map voor de JSON data
-        Map<String, Object> requestData = new HashMap<>();
-
-        // Gebruik student_id als identifier
-        requestData.put("student_id", student.getId());
-
-        // Voeg alle velden toe
-        requestData.put("student_number", student.getStudentnumber());
-        requestData.put("first_name", student.getFirstname());
-        requestData.put("last_name", student.getLastname());
-        requestData.put("password", student.getPassword());
-        requestData.put("total_ec", student.getTotalEc());
-        requestData.put("gender", student.getGender());
-        requestData.put("birthdate", student.getBirthdate());
-
-        // Converteer naar JSON
-        Gson gson = new Gson();
-        String jsonInputString = gson.toJson(requestData);
-
-        try(OutputStream os = connection.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-
-        int responseCode = connection.getResponseCode();
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            String errorMessage = "Onbekende fout";
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(connection.getErrorStream(), "utf-8"))) {
-                StringBuilder response = new StringBuilder();
-                String responseLine;
-                while ((responseLine = br.readLine()) != null) {
-                    response.append(responseLine.trim());
-                }
-                errorMessage = response.toString();
-            }
-            throw new RuntimeException("Update mislukt: " + errorMessage);
-        }
-    }
-
-    private void deleteStudentFromAPI(String studentId) throws Exception {
-        String apiUrl = API_BASE_URL + "students";
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("DELETE");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
-
-        String jsonInputString = "{\"student_id\": \"" + studentId + "\"}";
-
-        try(OutputStream os = connection.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-
-        int responseCode = connection.getResponseCode();
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new RuntimeException("Failed to delete student: HTTP error code " + responseCode);
         }
     }
 
@@ -437,8 +375,9 @@ public class OverzichtStudentenGUI {
                 return;
             }
         }
-        JOptionPane.showMessageDialog(frame, "Student niet gevonden.", "Fout", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(frame, "models.Student niet gevonden.", "Fout", JOptionPane.ERROR_MESSAGE);
     }
+
     private Map<String, Double> calculateAveragePerCourse(String studentNumber) {
         Map<String, Double> averagePerCourse = new HashMap<>();
         try {
@@ -448,7 +387,7 @@ public class OverzichtStudentenGUI {
             Map<String, List<Double>> scoresPerCourse = new HashMap<>();
             for (Grade grade : grades) {
                 String courseName = grade.getCourse_name();
-                double score = Double.parseDouble(grade.getScore_value());
+                double score = grade.getScore_value();
 
                 scoresPerCourse.computeIfAbsent(courseName, k -> new ArrayList<>()).add(score);
             }
@@ -469,6 +408,7 @@ public class OverzichtStudentenGUI {
         }
         return averagePerCourse;
     }
+
     private void showStudentScores(String studentNumber) {
         try {
             List<Grade> grades = fetchGradesForStudent(studentNumber);
@@ -497,13 +437,13 @@ public class OverzichtStudentenGUI {
             }
 
             // Maak de cijfertabel
-            String[] columnNames = {"Vak", "Cijfer", "Semester", "Type"};
+            String[] columnNames = {"Vak", "models.Cijfer", "models.Semester", "Type"};
             Object[][] data = new Object[grades.size()][4];
 
             for (int i = 0; i < grades.size(); i++) {
                 Grade grade = grades.get(i);
                 Exam exam = exams.stream()
-                        .filter(e -> e.getId() == Integer.parseInt(grade.getExam_id()))
+                        .filter(e -> e.getId() == grade.getExam_id())
                         .findFirst()
                         .orElse(null);
 
@@ -585,9 +525,9 @@ public class OverzichtStudentenGUI {
             for (int i = 0; i < students.size(); i++) {
                 Student student = students.get(i);
                 data[i][0] = student.getId();
-                data[i][1] = student.getFirstname();
-                data[i][2] = student.getLastname();
-                data[i][3] = student.getStudentnumber();
+                data[i][1] = student.getFirst_name();
+                data[i][2] = student.getLast_name();
+                data[i][3] = student.getStudent_number();
                 data[i][4] = student.getGender();
                 data[i][5] = student.getBirthdate();
                 data[i][6] = "Bewerken";
@@ -673,7 +613,7 @@ public class OverzichtStudentenGUI {
         }
     }
 
-    // API methodes
+    // API_calls.API methodes
     private static List<Student> fetchStudents() throws Exception {
         String apiUrl = API_BASE_URL + "students";
         URL url = new URL(apiUrl);
@@ -734,5 +674,3 @@ public class OverzichtStudentenGUI {
         }
     }
 }
-
-//test
