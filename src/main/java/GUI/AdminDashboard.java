@@ -232,8 +232,8 @@ public class AdminDashboard {
 
     public void groepsleden() {
         String uitleg = "Ons team bestaat uit:\n";
-        uitleg += "- Ramkhelawan Riaaz - SE/1123/070\n";
         uitleg += "- Ramdhiansing Shakeel - SE/1123/067\n";
+        uitleg += "- Ramkhelawan Riaaz - SE/1123/070\n";
         uitleg += "- Sangham Rishika - SE/1123/081\n";
         uitleg += "- Sodipo Sherreskly - SE/1123/086\n";
         JOptionPane.showMessageDialog(frame, uitleg, "Uitleg", JOptionPane.INFORMATION_MESSAGE);
