@@ -114,7 +114,7 @@ public class AdminDashboard {
         addStudentButton.addActionListener(e -> new AddStudentGUI()); // Open GUI.AddStudentGUI
         topRowPanel.add(addStudentButton);
 
-        JButton addSubjectButton = createStyledButton("Tentamen aanmaken", new Color(211, 85, 0), Color.WHITE); // #d35500
+        JButton addSubjectButton = createStyledButton("Tentamen Toevoegen", new Color(211, 85, 0), Color.WHITE); // #d35500
         addSubjectButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         addSubjectButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
         addSubjectButton.addActionListener(e -> new AddTentamenGUI()); // Open GUI.AddVakGUI
@@ -216,22 +216,26 @@ public class AdminDashboard {
     public void explain() { // RS
         String uitleg = "Welkom bij de Studenten en Cijfers Administratie applicatie!\n";
         uitleg += "Hier vindt u een overzicht van de beschikbare functionaliteiten.\n\n";
-        uitleg += "1. Studenten toevoegen: Klik op \"models.Student Toevoegen\" om een nieuw student toe te voegen.\n";
-        uitleg += "2. Vakken toevoegen: Klik op \"Vak Toevoegen\" om een nieuw vak toe te voegen.\n";
-        uitleg += "3. Cijfers toevoegen: Klik op \"models.Cijfer Toevoegen\" om een nieuwe cijfer toe te voegen.\n";
-        uitleg += "4. Overzichten: Klik op een van de knoppen in de bovenste rij om een overzicht te openen.\n";
-        uitleg += "5. Uitloggen: Klik op \"Uitloggen\" om u uit te loggen.\n";
-        uitleg += "6. Sluiten: Klik op \"Sluiten\" om het programma af te sluiten.\n";
+        uitleg += "1. Studenten toevoegen: Klik op \"Student Toevoegen\" om een nieuw student toe te voegen.\n";
+        uitleg += "2. Tentamen toevoegen: Klik op \"Tentamen Toevoegen\" om een nieuw tentamen aan te maken.\n";
+        uitleg += "3. Cijfers toevoegen: Klik op \"Cijfer Toevoegen\" om een nieuwe cijfer toe te voegen.\n";
+        uitleg += "4. Overzichten: Klik op een van de knoppen in de benedenste rij om een overzicht te openen.\n";
+        uitleg += "5. Bewerken: Kies een overzicht en klik op \"Bewerken\" om een record te bewerken.\n";
+        uitleg += "6. Verwijderen: Kies een overzicht en klik op \"Verwijderen\" om een record te verwijderen.\n";
+        // uitleg += "7. Refreshen: Kies een overzicht en klik op \"Bewerken\" om een record te bewerken.\n";
+        uitleg += "7. Visualiseer cijfers: Klik op \"Visualiseer cijfers\" om een grafische weergave te zien van de cijfers.\n";
+        uitleg += "8. Uitloggen: Klik op \"Uitloggen\" om u uit te loggen.\n";
+        uitleg += "9. Sluiten: Klik op \"Sluiten\" om het programma af te sluiten.\n";
         uitleg += "\n\nDank voor het gebruiken van deze applicatie.";
         JOptionPane.showMessageDialog(frame, uitleg, "Uitleg", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void groepsleden() {
         String uitleg = "Ons team bestaat uit:\n";
-        uitleg += "- Ramkhelawan Riaaz\n";
-        uitleg += "- Ramdhiansing Shakeel\n";
-        uitleg += "- Sangham Rishika\n";
-        uitleg += "- Sodipo Sherreskly\n";
+        uitleg += "- Ramkhelawan Riaaz - SE/1123/070\n";
+        uitleg += "- Ramdhiansing Shakeel - SE/1123/067\n";
+        uitleg += "- Sangham Rishika - SE/1123/081\n";
+        uitleg += "- Sodipo Sherreskly - SE/1123/086\n";
         JOptionPane.showMessageDialog(frame, uitleg, "Uitleg", JOptionPane.INFORMATION_MESSAGE);
     }
 

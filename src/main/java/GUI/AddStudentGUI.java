@@ -20,7 +20,7 @@ public class AddStudentGUI {
     private JButton saveButton, cancelButton, clearButton;
 
     public AddStudentGUI() {
-        frame = new JFrame("models.Student Toevoegen");
+        frame = new JFrame("Student Toevoegen");
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -30,7 +30,7 @@ public class AddStudentGUI {
         titlePanel.setOpaque(false);
         titlePanel.setBorder(BorderFactory.createEmptyBorder(50, 0, 30, 0));
 
-        JLabel titleLabel = new JLabel("models.Student Toevoegen", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Student Toevoegen", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 42));
         titleLabel.setForeground(new Color(211, 85, 0)); // Oranje tekst
         titlePanel.add(titleLabel);
@@ -114,7 +114,7 @@ public class AddStudentGUI {
         cohortLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         cohortLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
-        gbc.gridy = 8;
+        gbc.gridy = 5;
         mainPanel.add(cohortLabel, gbc);
         //inputField Cohort
         cohortField = new JTextField(20);
@@ -127,7 +127,7 @@ public class AddStudentGUI {
         dobLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         dobLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         mainPanel.add(dobLabel, gbc);
 
         // Datumkiezer (JDatePicker)
@@ -147,7 +147,7 @@ public class AddStudentGUI {
         genderLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         genderLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 7;
         mainPanel.add(genderLabel, gbc);
         //inputField Geslacht
         String[] genders = {"M", "F"};
@@ -162,7 +162,7 @@ public class AddStudentGUI {
         styleButton(clearButton, Color.GRAY);
         clearButton.addActionListener(e -> clearFields());
         gbc.gridx = 0;
-        gbc.gridy = 6;
+        gbc.gridy = 8;
         clearButton.setPreferredSize(new Dimension(120, 25));
         mainPanel.add(clearButton, gbc);
 //---------------------------------------------------------------------------------------
