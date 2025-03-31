@@ -11,10 +11,10 @@ import java.util.List;
 import javax.swing.border.Border;
 import java.io.*;
 import java.net.*;
-
-import API_calls.API;
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken        ;
+import API_calls.API;
+
+import com.google.gson.reflect.TypeToken;
 import models.Grade;
 
 

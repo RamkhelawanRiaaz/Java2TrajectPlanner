@@ -15,7 +15,7 @@ public class AddCijfersGUI {
     private JButton saveButton, cancelButton, clearButton;
 
     public AddCijfersGUI() {
-        frame = new JFrame("models.Cijfer Toevoegen");
+        frame = new JFrame("Cijfer Toevoegen");
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -25,7 +25,7 @@ public class AddCijfersGUI {
         titlePanel.setOpaque(false);
         titlePanel.setBorder(BorderFactory.createEmptyBorder(50, 0, 30, 0));
 
-        JLabel titleLabel = new JLabel("models.Cijfer Toevoegen", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Cijfer Toevoegen", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 42));
         titleLabel.setForeground(new Color(211, 85, 0)); // Oranje tekst
         titlePanel.add(titleLabel);

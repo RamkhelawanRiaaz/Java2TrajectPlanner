@@ -20,7 +20,7 @@ public class AddTentamenGUI {
     private JButton saveButton, cancelButton, clearButton;
 
     public AddTentamenGUI(){
-        frame = new JFrame("models.Tentamen aanmaken");
+        frame = new JFrame("Tentamen aanmaken");
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
@@ -30,7 +30,7 @@ public class AddTentamenGUI {
         titlePanel.setOpaque(false);
         titlePanel.setBorder(BorderFactory.createEmptyBorder(50, 0, 30, 0));
 
-        JLabel titleLabel = new JLabel("models.Tentamen aanmaken", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Tentamen aanmaken", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 42));
         titleLabel.setForeground(new Color(211, 85, 0)); // Oranje tekst
         titlePanel.add(titleLabel);
@@ -46,7 +46,7 @@ public class AddTentamenGUI {
         gbc.gridx = 0;
 
         //label Course_id
-        JLabel Course_idLabel = new JLabel("models.Course id:");
+        JLabel Course_idLabel = new JLabel("Course id:");
         Course_idLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         Course_idLabel.setForeground(Color.WHITE);
         gbc.gridy = 0;
@@ -71,7 +71,7 @@ public class AddTentamenGUI {
         mainPanel.add(codeField, gbc);
 //---------------------------------------------------------------------------------------
         //label exam_type
-        JLabel exam_typeLabel = new JLabel("models.Exam type:");
+        JLabel exam_typeLabel = new JLabel("Exam type:");
         exam_typeLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         exam_typeLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
@@ -85,7 +85,7 @@ public class AddTentamenGUI {
         mainPanel.add(exam_typeComboBox, gbc);
 //---------------------------------------------------------------------------------------
         //label exam_date
-        JLabel exam_dateLabel = new JLabel("exam date:");
+        JLabel exam_dateLabel = new JLabel("Exam date:");
         exam_dateLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         exam_dateLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
