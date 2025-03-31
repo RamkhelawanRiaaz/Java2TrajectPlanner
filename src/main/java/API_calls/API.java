@@ -83,7 +83,7 @@ public class API implements SchoolAdmin {
 
         if (response.statusCode() == 200) {
             Gson gson = new Gson();
-            return gson.fromJson(response.body(), new TypeToken<List<Course>>() {}.getType()); // ✅ fix hier
+            return gson.fromJson(response.body(), new TypeToken<List<Course>>() {}.getType());
         } else {
             throw new RuntimeException("Failed to fetch courses: " + response.statusCode());
         }
