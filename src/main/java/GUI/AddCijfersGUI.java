@@ -186,7 +186,7 @@ public class AddCijfersGUI {
         API api_request = new API();
         api_request.postCijfer(cijfer);
 
-        JOptionPane.showMessageDialog(frame, "models.Cijfer succesvol toegevoegd!", "Succes", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, "Cijfer succesvol toegevoegd!", "Succes", JOptionPane.INFORMATION_MESSAGE);
         frame.dispose();
     }
 

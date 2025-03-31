@@ -144,12 +144,35 @@ public class API implements SchoolAdmin {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200 || response.statusCode() == 201) {
-                System.out.println("models.Student successfully added.");
+                System.out.println("Student successfully added.");
             } else {
                 System.out.println("Failed to add student. Status code: " + response.statusCode());
                 System.out.println("Response body: " + response.body());
             }
         } catch (Exception e) {
+            e.printStackTrace(); // back trace error
+        }
+    }
+
+    public  void postCijfer(Grade cijfer){
+        try{
+            Gson gson = new Gson();
+            String json = gson.toJson(cijfer);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(BASE_URL + SCORES_ENDPOINT))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200 || response.statusCode() == 201) {
+                System.out.println("Score succesvol toegevoegd.");
+            } else {
+                System.out.println("Fout bij toevoegen score. Code: " + response.statusCode());
+                System.out.println("Response: " + response.body());
+            }
+        }catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -178,46 +201,6 @@ public class API implements SchoolAdmin {
         }
     }
 
-    public  void postCijfer(Grade cijfer){
-        try{
-            Gson gson = new Gson();
-            String json = gson.toJson(cijfer);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL + SCORES_ENDPOINT))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200 || response.statusCode() == 201) {
-                System.out.println("Score succesvol toegevoegd.");
-            } else {
-                System.out.println("Fout bij toevoegen score. Code: " + response.statusCode());
-                System.out.println("Response: " + response.body());
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-
-    public void deleteStudent(String studentId) throws Exception {
-        String jsonInputString = "{\"student_id\": \"" + studentId + "\"}";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + STUDENTS_ENDPOINT))
-                .header("Content-Type", "application/json")
-                .method("DELETE", HttpRequest.BodyPublishers.ofString(jsonInputString, StandardCharsets.UTF_8))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != 200) {
-            throw new RuntimeException("Verwijderen van student mislukt: " + response.body());
-        }
-    }
-
     public void updateStudent(Student student) throws Exception {
         Gson gson = new Gson();
 
@@ -243,22 +226,6 @@ public class API implements SchoolAdmin {
 
         if (response.statusCode() != 200) {
             throw new RuntimeException("Bijwerken van student mislukt: " + response.body());
-        }
-    }
-
-    public void deleteGrade(int scoreId) throws Exception {
-        String json = "{\"score_id\": " + scoreId + "}";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + SCORES_ENDPOINT))
-                .header("Content-Type", "application/json")
-                .method("DELETE", HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != 200) {
-            throw new RuntimeException("Verwijderen van cijfer mislukt: " + response.body());
         }
     }
 
@@ -297,34 +264,6 @@ public class API implements SchoolAdmin {
         }
     }
 
-    public void deleteTentamen(String examId) throws Exception {
-        if (examId == null || examId.trim().isEmpty()) {
-            throw new IllegalArgumentException("models.Exam ID is leeg of null.");
-        }
-
-        String json = "{\"exam_id\": " + Integer.parseInt(examId.trim()) + "}";
-
-        System.out.println("[DEBUG] DELETE tentamen JSON payload: " + json);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + EXAMS_ENDPOINT))
-                .header("Content-Type", "application/json")
-                .method("DELETE", HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
-                .build();
-
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        System.out.println("[DEBUG] Response status: " + response.statusCode());
-        System.out.println("[DEBUG] Response body: " + response.body());
-
-        if (response.statusCode() != 200) {
-            throw new RuntimeException("Verwijderen van tentamen mislukt: " + response.body());
-        }
-    }
-
-
-
-
     public void updateTentamen(Tentamen tentamen) throws Exception {
         Map<String, Object> requestData = new HashMap<>();
         requestData.put("exam_id", tentamen.getId());
@@ -350,6 +289,63 @@ public class API implements SchoolAdmin {
 
         if (response.statusCode() != 200) {
             throw new RuntimeException("Bijwerken van tentamen mislukt: " + response.body());
+        }
+    }
+
+    public void deleteStudent(String studentId) throws Exception {
+        String jsonInputString = "{\"student_id\": \"" + studentId + "\"}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + STUDENTS_ENDPOINT))
+                .header("Content-Type", "application/json")
+                .method("DELETE", HttpRequest.BodyPublishers.ofString(jsonInputString, StandardCharsets.UTF_8))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Verwijderen van student mislukt: " + response.body());
+        }
+    }
+
+    public void deleteGrade(int scoreId) throws Exception {
+        String json = "{\"score_id\": " + scoreId + "}";
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + SCORES_ENDPOINT))
+                .header("Content-Type", "application/json")
+                .method("DELETE", HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Verwijderen van cijfer mislukt: " + response.body());
+        }
+    }
+
+    public void deleteTentamen(String examId) throws Exception {
+        if (examId == null || examId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Exam ID is leeg of null.");
+        }
+
+        String json = "{\"exam_id\": " + Integer.parseInt(examId.trim()) + "}";
+
+        System.out.println("[DEBUG] DELETE tentamen JSON payload: " + json);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + EXAMS_ENDPOINT))
+                .header("Content-Type", "application/json")
+                .method("DELETE", HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        System.out.println("[DEBUG] Response status: " + response.statusCode());
+        System.out.println("[DEBUG] Response body: " + response.body());
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Verwijderen van tentamen mislukt: " + response.body());
         }
     }
 }
