@@ -35,7 +35,7 @@ public class OverzichtStudentenGUI {
         frame.setLayout(new BorderLayout());
         frame.getContentPane().setBackground(new Color(30, 30, 30));
 
-        // Zoekbalk
+
         JPanel searchPanel = createSearchPanel();
         frame.add(searchPanel, BorderLayout.NORTH);
 
@@ -132,8 +132,8 @@ public class OverzichtStudentenGUI {
         StudentTableModel model = (StudentTableModel) studentTable.getModel();
         Student student = model.getStudentAt(row);
 
-        JDialog editDialog = new JDialog(frame, "models.Student Bewerken", true);
-        editDialog.setSize(800, 700); // Iets groter gemaakt voor de extra velden
+        JDialog editDialog = new JDialog(frame, "Student Bewerken", true);
+        editDialog.setSize(800, 700);
         editDialog.setLayout(new BorderLayout());
         editDialog.getContentPane().setBackground(new Color(30, 30, 30));
 
@@ -357,7 +357,7 @@ public class OverzichtStudentenGUI {
                 new API().deleteStudent(student.getId());
                 frame.dispose();
                 new OverzichtStudentenGUI(fetchStudents());
-                JOptionPane.showMessageDialog(frame, "models.Student succesvol verwijderd.", "Succes", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Student succesvol verwijderd.", "Succes", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(frame, "Fout bij verwijderen student: " + e.getMessage(),
                         "Fout", JOptionPane.ERROR_MESSAGE);
@@ -366,17 +366,49 @@ public class OverzichtStudentenGUI {
     }
 
     private void searchStudent() {
-        String searchText = searchField.getText().trim();
-        for (int i = 0; i < studentTable.getRowCount(); i++) {
-            String studentNumber = (String) studentTable.getValueAt(i, 3);
-            if (studentNumber.equals(searchText)) {
-                studentTable.setRowSelectionInterval(i, i);
-                studentTable.scrollRectToVisible(studentTable.getCellRect(i, 0, true));
-                return;
+        String query = searchField.getText().trim().toLowerCase();
+
+        if (query.isEmpty()) {
+            try {
+                refreshStudentTable(fetchStudents());
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(frame, "Fout bij ophalen studenten: " + e.getMessage(),
+                        "Fout", JOptionPane.ERROR_MESSAGE);
             }
+            return;
         }
-        JOptionPane.showMessageDialog(frame, "models.Student niet gevonden.", "Fout", JOptionPane.ERROR_MESSAGE);
+
+        try {
+            List<Student> allStudents = fetchStudents();
+            List<Student> filteredStudents = new ArrayList<>();
+
+            for (Student student : allStudents) {
+                if (student.getFirst_name().toLowerCase().contains(query) ||
+                        student.getLast_name().toLowerCase().contains(query) ||
+                        student.getStudent_number().toLowerCase().contains(query)) {
+                    filteredStudents.add(student);
+                }
+            }
+
+            if (filteredStudents.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Geen studenten gevonden",
+                        "Niet Gevonden", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                refreshStudentTable(filteredStudents);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Fout bij het zoeken: " + e.getMessage(),
+                    "Fout", JOptionPane.ERROR_MESSAGE);
+        }
     }
+
+    // Table refreshen met behulp van zoekoptie
+    private void refreshStudentTable(List<Student> students) {
+        StudentTableModel model = new StudentTableModel(students, columnNames);
+        studentTable.setModel(model);
+        configureButtons();
+    }
+
 
     private Map<String, Double> calculateAveragePerCourse(String studentNumber) {
         Map<String, Double> averagePerCourse = new HashMap<>();
