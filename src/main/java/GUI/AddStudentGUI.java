@@ -208,7 +208,7 @@ public class AddStudentGUI {
         });
     }
 
-    private void saveStudent() {
+    public void saveStudent() {
         String fullName = nameField.getText().trim();
         String studentNumber = studentNumberField.getText().trim();
         String password = passwordField.getText().trim();
@@ -273,7 +273,7 @@ public class AddStudentGUI {
         API api_request = new API();
         api_request.postStudent(student);
 
-        JOptionPane.showMessageDialog(frame, "models.Student succesvol toegevoegd!", "Succes", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, "Student succesvol toegevoegd!", "Succes", JOptionPane.INFORMATION_MESSAGE);
         frame.dispose();
     }
 

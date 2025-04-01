@@ -14,7 +14,7 @@ public class UpdateStudentTest {
 
         Student s = new Student();
         s.setId("107");
-        s.setFirst_name("Rampie");
+        s.setFirst_name("Riaaz");
         s.setLast_name("Ramkhelawan");
         s.setMajor("SE");
         s.setCohort(1101);
@@ -74,4 +74,5 @@ public class UpdateStudentTest {
         s.setBirthdate("2003-10-05");
         assertDoesNotThrow(() -> api.updateStudent(s));
     }
+
 }

@@ -32,11 +32,11 @@ public class OverzichtTentamensGUI extends JFrame {
 
         // Getters (nodig voor Gson)
         public int getId() { return id; }
-        public int getCourse_id() { return course_id; }
-        public String getCourse_name() { return course_name; }
-        public int getSemester() { return semester; }
-        public String getType() { return type; }
-        public String getDate() { return date; }
+        //public int getCourse_id() { return course_id; }
+        //public String getCourse_name() { return course_name; }
+        //public int getSemester() { return semester; }
+        //public String getType() { return type; }
+        //public String getDate() { return date; }
     }
 
     public OverzichtTentamensGUI() {
@@ -172,7 +172,7 @@ public class OverzichtTentamensGUI extends JFrame {
         }
     }
 
-    private void deleteExam() {
+    public void deleteExam() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
             showWarning("Selecteer eerst een tentamen");

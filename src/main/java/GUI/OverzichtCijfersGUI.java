@@ -40,17 +40,6 @@ public class OverzichtCijfersGUI {
 
         // Data voor de tabel
         GradeTableModel model = new GradeTableModel(grades, columnNames);
-//        for (int i = 0; i < grades.size(); i++) {
-//            models.Grade grade = grades.get(i);
-//            data[i][0] = grade.getId();
-//            data[i][1] = grade.getStudent_number();
-//            data[i][2] = grade.getStudent_full_name();  // Volledige naam
-//            data[i][3] = grade.getCourse_name();
-//            data[i][4] = grade.getScore_value();
-//            data[i][5] = grade.getScore_datetime();
-//            data[i][6] = "Bewerken";
-//            data[i][7] = "Verwijderen";
-//        }
 
         gradeTable = new JTable(model);
         gradeTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -305,7 +294,7 @@ public class OverzichtCijfersGUI {
         button.setFocusPainted(false);
     }
 
-    private void deleteGrade(int row) {
+    public void deleteGrade(int row) {
         GradeTableModel model = (GradeTableModel) gradeTable.getModel();
         Grade cijfer = model.getGradeAt(row);
 

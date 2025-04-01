@@ -128,7 +128,7 @@ public class OverzichtStudentenGUI {
         studentTable.getColumn("Verwijderen").setCellEditor(new ButtonEditor(new JCheckBox(), studentTable, this, false));
     }
 
-    private void updateStudent(int row) {
+    public void updateStudent(int row) {
         StudentTableModel model = (StudentTableModel) studentTable.getModel();
         Student student = model.getStudentAt(row);
 
@@ -341,7 +341,7 @@ public class OverzichtStudentenGUI {
         button.setFocusPainted(false);
     }
 
-    private void deleteStudent(int row) {
+    public void deleteStudent(int row) {
         StudentTableModel model = (StudentTableModel) studentTable.getModel();
         Student student = model.getStudentAt(row);
 
