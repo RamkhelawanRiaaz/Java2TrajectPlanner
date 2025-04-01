@@ -191,9 +191,9 @@ public class API implements SchoolAdmin {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200 || response.statusCode() == 201) {
-                System.out.println("models.Tentamen successfully aangemaakt..");
+                System.out.println("Tentamen successfully aangemaakt..");
             } else {
-                System.out.println("Failed to add models.Tentamen. Status code: " + response.statusCode());
+                System.out.println("Failed to add Tentamen. Status code: " + response.statusCode());
                 System.out.println("Response body: " + response.body());
             }
         } catch (Exception e) {

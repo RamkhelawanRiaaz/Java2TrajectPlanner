@@ -21,7 +21,7 @@ public class LoginScreen {
         loginFrame = new JFrame("University of Applied Sciences and Technology (Suriname)");
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         loginFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        loginFrame.setUndecorated(false);
+        loginFrame.setUndecorated(false); // default decorations
 
         // Main panel with gradient background
         JPanel mainPanel = new JPanel() {
@@ -79,8 +79,8 @@ public class LoginScreen {
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10); // padding/spacing tussen components
+        gbc.fill = GridBagConstraints.HORIZONTAL; // expands width
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -115,7 +115,7 @@ public class LoginScreen {
         loginButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
         loginButton.setBackground(new Color(211, 85, 0));
         loginButton.setForeground(Color.WHITE);
-        loginButton.setFocusPainted(false);
+        loginButton.setFocusPainted(false); // haalt focus ring weg
         loginButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         buttonPanel.add(loginButton);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);

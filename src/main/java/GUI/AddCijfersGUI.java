@@ -41,7 +41,7 @@ public class AddCijfersGUI {
         gbc.gridx = 0;
 
         //label student_id
-        JLabel student_idLabel = new JLabel("student id:");
+        JLabel student_idLabel = new JLabel("Student ID:");
         student_idLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         student_idLabel.setForeground(Color.WHITE);
         gbc.gridy = 0;
@@ -53,7 +53,7 @@ public class AddCijfersGUI {
         mainPanel.add(student_idField, gbc);
 //---------------------------------------------------------------------------------------
         //label student_number
-        JLabel student_numberLabel = new JLabel("student_number:");
+        JLabel student_numberLabel = new JLabel("Student Number:");
         student_numberLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         student_numberLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
@@ -66,7 +66,7 @@ public class AddCijfersGUI {
         mainPanel.add(student_numberField, gbc);
 //---------------------------------------------------------------------------------------
         //label exam_id
-        JLabel exam_idLabel = new JLabel("exam id:");
+        JLabel exam_idLabel = new JLabel("Exam ID:");
         exam_idLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         exam_idLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;
@@ -79,7 +79,7 @@ public class AddCijfersGUI {
         mainPanel.add(exam_idField, gbc);
 //---------------------------------------------------------------------------------------
         //label score_value
-        JLabel score_valueLabel = new JLabel("score value:");
+        JLabel score_valueLabel = new JLabel("Score Value:");
         score_valueLabel.setFont(new Font("Arial", Font.PLAIN, 20));
         score_valueLabel.setForeground(Color.WHITE);
         gbc.gridx = 0;

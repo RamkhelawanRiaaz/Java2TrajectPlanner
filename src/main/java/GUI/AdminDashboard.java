@@ -129,7 +129,7 @@ public class AdminDashboard {
         mainButtonPanel.add(topRowPanel);
 
         // Tekst "Overzichtigen" (links)
-        JLabel overzichtLabel = new JLabel("Overzichtigen");
+        JLabel overzichtLabel = new JLabel("Overzichten");
         overzichtLabel.setFont(new Font("Segoe UI", Font.BOLD, 16)); // Grotere tekst
         overzichtLabel.setForeground(Color.WHITE); // Witte tekst
         overzichtLabel.setAlignmentX(Component.LEFT_ALIGNMENT); // Links uitlijnen
@@ -270,9 +270,9 @@ public class AdminDashboard {
         return button;
     }
 
-    private void showOverview(String overviewType) {
-        JOptionPane.showMessageDialog(frame, "Overzicht van: " + overviewType);
-    }
+//    private void showOverview(String overviewType) {
+//        JOptionPane.showMessageDialog(frame, "Overzicht van: " + overviewType);
+//    }
 
     private void confirmExit() {
         int response = JOptionPane.showConfirmDialog(frame, "Weet u zeker dat u het programma wilt afsluiten?", "Bevestiging", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -292,7 +292,5 @@ public class AdminDashboard {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AdminDashboard::new);
-    }
+    } // creates new admin dashboar window
 }
-
-//test
