@@ -258,7 +258,8 @@ public class OverzichtCijfersGUI {
 
                 new API().updateGrade(updatedGrade);
                 frame.dispose();
-                new OverzichtCijfersGUI(fetchGrades());
+                API request = new API();
+                new OverzichtCijfersGUI(request.getGrades());
                 editDialog.dispose();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(editDialog, "Fout bij bijwerken: " + ex.getMessage(),
@@ -311,7 +312,8 @@ public class OverzichtCijfersGUI {
             try {
                 new API().deleteGrade(cijfer.getId());
                 frame.dispose();
-                new OverzichtCijfersGUI(fetchGrades());
+                API request = new API();
+                new OverzichtCijfersGUI(request.getGrades());
                 JOptionPane.showMessageDialog(frame, "models.Cijfer succesvol verwijderd.", "Succes", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(frame, "Fout bij verwijderen cijfer: " + e.getMessage(),
@@ -414,22 +416,5 @@ public class OverzichtCijfersGUI {
             setText((value == null) ? "" : value.toString());
             return this;
         }
-    }
-
-    private static List<Grade> fetchGrades() throws Exception {
-        String apiUrl = API_BASE_URL + "scores";
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-        reader.close();
-
-        return new Gson().fromJson(response.toString(), new TypeToken<List<Grade>>(){}.getType());
     }
 }
