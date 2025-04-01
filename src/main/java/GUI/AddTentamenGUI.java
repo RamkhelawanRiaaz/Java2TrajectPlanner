@@ -183,7 +183,7 @@ public class AddTentamenGUI {
         API api_request = new API();
         api_request.postTentamen(tentamen);
 
-        JOptionPane.showMessageDialog(frame, "models.Tentamen succesfol aangemaakt", "Succes", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, "Tentamen succesfol aangemaakt", "Succes", JOptionPane.INFORMATION_MESSAGE);
         frame.dispose();
     }
 

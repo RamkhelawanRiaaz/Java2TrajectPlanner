@@ -282,7 +282,8 @@ public class OverzichtStudentenGUI {
                 new API().updateStudent(updatedStudent);
 
                 frame.dispose();
-                new OverzichtStudentenGUI(fetchStudents());
+                API api_request = new API();
+                new OverzichtStudentenGUI(api_request.getStudents());
                 editDialog.dispose();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(editDialog, "Fout bij bijwerken: " + ex.getMessage(),
@@ -356,7 +357,8 @@ public class OverzichtStudentenGUI {
             try {
                 new API().deleteStudent(student.getId());
                 frame.dispose();
-                new OverzichtStudentenGUI(fetchStudents());
+                API api_request = new API();
+                new OverzichtStudentenGUI(api_request.getStudents());
                 JOptionPane.showMessageDialog(frame, "Student succesvol verwijderd.", "Succes", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(frame, "Fout bij verwijderen student: " + e.getMessage(),
@@ -368,18 +370,10 @@ public class OverzichtStudentenGUI {
     private void searchStudent() {
         String query = searchField.getText().trim().toLowerCase();
 
-        if (query.isEmpty()) {
-            try {
-                refreshStudentTable(fetchStudents());
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(frame, "Fout bij ophalen studenten: " + e.getMessage(),
-                        "Fout", JOptionPane.ERROR_MESSAGE);
-            }
-            return;
-        }
-
+        //copy input en check het, then display
         try {
-            List<Student> allStudents = fetchStudents();
+            API api_request =new API();
+            List<Student> allStudents = api_request.getStudents();
             List<Student> filteredStudents = new ArrayList<>();
 
             for (Student student : allStudents) {
@@ -415,7 +409,6 @@ public class OverzichtStudentenGUI {
         try {
             List<Grade> grades = fetchGradesForStudent(studentNumber);
 
-            // Eerst verzamelen we alle cijfers per vak
             Map<String, List<Double>> scoresPerCourse = new HashMap<>();
             for (Grade grade : grades) {
                 String courseName = grade.getCourse_name();
@@ -424,7 +417,6 @@ public class OverzichtStudentenGUI {
                 scoresPerCourse.computeIfAbsent(courseName, k -> new ArrayList<>()).add(score);
             }
 
-            // Dan berekenen we het gemiddelde per vak
             for (Map.Entry<String, List<Double>> entry : scoresPerCourse.entrySet()) {
                 double sum = 0;
                 for (Double score : entry.getValue()) {
@@ -645,23 +637,8 @@ public class OverzichtStudentenGUI {
         }
     }
 
-    // API_calls.API methodes
-    private static List<Student> fetchStudents() throws Exception {
-        String apiUrl = API_BASE_URL + "students";
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+    //APK methode
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-        reader.close();
-
-        return new Gson().fromJson(response.toString(), new TypeToken<List<Student>>(){}.getType());
-    }
 
     private List<Grade> fetchGradesForStudent(String studentNumber) throws Exception {
         String apiUrl = API_BASE_URL + "scores/" + studentNumber.replace("/", "-");
@@ -699,7 +676,8 @@ public class OverzichtStudentenGUI {
 
     public static void main(String[] args) {
         try {
-            List<Student> students = fetchStudents();
+            API api_request = new API();
+            List<Student> students = api_request.getStudents();
             new OverzichtStudentenGUI(students);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Fout bij het ophalen van studentgegevens.", "Fout", JOptionPane.ERROR_MESSAGE);
