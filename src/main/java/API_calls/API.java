@@ -13,6 +13,7 @@ import java.util.*;
 import models.*;
 
 public class API implements SchoolAdmin {
+    // constant variables om API en endpoints te declareren
     private  final String BASE_URL = "https://trajectplannerapi.dulamari.com";
     private  final String STUDENTS_ENDPOINT = "/students";
     private  final String SEMESTERS_ENDPOINT = "/semesters";
@@ -20,9 +21,10 @@ public class API implements SchoolAdmin {
     private  final String EXAMS_ENDPOINT = "/exams";
     private  final String COURSES_ENDPOINT = "/courses";
 
+    // client wordt aangemaakt om web request te sturen
     private  final HttpClient client = HttpClient.newHttpClient();
 
-    // Methode om studenten op te halen
+    // Methode om studenten op te halen; request gemaakt; gestuurd; response ontvangen; response convert if 200; if not exception
     public  List<Student> getStudents() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + STUDENTS_ENDPOINT))
@@ -39,7 +41,7 @@ public class API implements SchoolAdmin {
         }
     }
 
-    // Methode om semesters op te halen
+    // Methode om semesters op te halen; request gemaakt; gestuurd; response ontvangen; response convert if 200; if not exception
     public  List<Semester> getSemesters() throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + SEMESTERS_ENDPOINT))
@@ -130,6 +132,7 @@ public class API implements SchoolAdmin {
         return scores;
     }
 
+    // methode om student data te sturen naar API; request gemaakt; gestuurd; response ontvangen; response convert if 200; if not exception
     public  void postStudent(Student student){
         try{
             Gson gson = new Gson();
@@ -201,6 +204,7 @@ public class API implements SchoolAdmin {
         }
     }
 
+    // methode om data te bewerken; request gemaakt; gestuurd; response ontvangen; response convert if 200; if not exception
     public void updateStudent(Student student) throws Exception {
         Gson gson = new Gson();
 
@@ -292,6 +296,7 @@ public class API implements SchoolAdmin {
         }
     }
 
+    // methode om data te vewijderen; request gemaakt; gestuurd; response ontvangen; response convert if 200; if not exception
     public void deleteStudent(String studentId) throws Exception {
         String jsonInputString = "{\"student_id\": \"" + studentId + "\"}";
 
