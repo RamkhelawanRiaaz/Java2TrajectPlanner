@@ -28,7 +28,7 @@ public class OverzichtCijfersGUI {
     public OverzichtCijfersGUI(List<Grade> grades) {
         System.out.println("GUI.OverzichtCijfersGUI wordt geopend met " + grades.size() + " cijfers.");
 
-        // Maak het hoofdvenster
+        //Hoofdvenster wordt gemaakt
         frame = new JFrame("Overzicht Cijfers");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1200, 600);
@@ -40,7 +40,7 @@ public class OverzichtCijfersGUI {
 
         // Data voor de tabel
         GradeTableModel model = new GradeTableModel(grades, columnNames);
-
+        //Tabel wordt gemaakt
         gradeTable = new JTable(model);
         gradeTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gradeTable.setRowHeight(30);
@@ -55,22 +55,26 @@ public class OverzichtCijfersGUI {
         header.setBackground(new Color(0, 120, 215));
         header.setForeground(Color.WHITE);
 
+        //Geeft positie van tabel
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < gradeTable.getColumnCount(); i++) {
             gradeTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
+        //Scroll functie
         JScrollPane scrollPane = new JScrollPane(gradeTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(new Color(30, 30, 30));
 
+        //Visualize button aangemaakt
         visualizeButton = new JButton("Visualiseer cijfers");
         visualizeButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
         visualizeButton.setBackground(new Color(0, 120, 215));
         visualizeButton.setForeground(Color.WHITE);
         visualizeButton.setFocusPainted(false);
 
+        //Action listener voor visualize button
         visualizeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -86,11 +90,13 @@ public class OverzichtCijfersGUI {
             }
         });
 
+        //Jpanel object gemaakt voor buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(new Color(30, 30, 30));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         buttonPanel.add(visualizeButton);
 
+        //Jpanel object gemaakt voor panels
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         panel.setBackground(new Color(30, 30, 30));
@@ -102,6 +108,7 @@ public class OverzichtCijfersGUI {
         frame.setVisible(true);
     }
 
+    //Method gemaakt zodat een venster tevoorschijn komt nadat studentId en studentName wordt opgehaald
     private void openCijferVisualisatie(int studentId, String studentName) {
         new CijferVisualisatieGUI(studentId, studentName);
     }
@@ -127,6 +134,7 @@ public class OverzichtCijfersGUI {
         gradeTable.getColumn("Verwijderen").setCellEditor(new ButtonEditor(new JCheckBox(), gradeTable, this, false));
     }
 
+    //Update functie gemaakt
     private void updateGrade(int row) {
         GradeTableModel model = (GradeTableModel) gradeTable.getModel();
         Grade grade = model.getGradeAt(row);
@@ -159,7 +167,7 @@ public class OverzichtCijfersGUI {
                 BorderFactory.createLineBorder(new Color(80, 80, 80)),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
         );
-
+        //Layout van Jlabels en Jtextfields in de dialog
         // models.Student ID
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -244,6 +252,7 @@ public class OverzichtCijfersGUI {
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         buttonPanel.setBackground(new Color(30, 30, 30));
 
+        //Save button gemaakt
         JButton saveButton = new JButton("Opslaan");
         styleButton(saveButton, new Color(0, 120, 215), Color.WHITE);
         saveButton.addActionListener(e -> {
@@ -267,6 +276,7 @@ public class OverzichtCijfersGUI {
             }
         });
 
+        //Cancel button gemaakt
         JButton cancelButton = new JButton("Annuleren");
         styleButton(cancelButton, new Color(80, 80, 80), Color.WHITE);
         cancelButton.addActionListener(e -> editDialog.dispose());
@@ -279,6 +289,7 @@ public class OverzichtCijfersGUI {
         editDialog.setVisible(true);
     }
 
+    //Method voor styleTextField om textfields te designen
     private void styleTextField(JTextField field, Font font, Color bg, Color fg, Border border) {
         field.setFont(font);
         field.setBackground(bg);
@@ -287,6 +298,7 @@ public class OverzichtCijfersGUI {
         field.setCaretColor(fg);
     }
 
+    //Method voor styleButton om buttons te designen
     private void styleButton(JButton button, Color bg, Color fg) {
         button.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         button.setBackground(bg);
@@ -295,6 +307,7 @@ public class OverzichtCijfersGUI {
         button.setFocusPainted(false);
     }
 
+    //Delete functie
     public void deleteGrade(int row) {
         GradeTableModel model = (GradeTableModel) gradeTable.getModel();
         Grade cijfer = model.getGradeAt(row);
@@ -330,6 +343,7 @@ public class OverzichtCijfersGUI {
             this.cijfers = cijfers;
         }
 
+        //Array gemaakt om lijst om te zetten in 2D array objecten
         private static Object[][] convertGradesToData(List<Grade> cijfers) {
             Object[][] data = new Object[cijfers.size()][8]; // Adjust column count based on your table
 
@@ -355,7 +369,7 @@ public class OverzichtCijfersGUI {
             return cijfers.get(row);
         }
     }
-
+    //ButtonEditor geeft werking van de button aan
     class ButtonEditor extends DefaultCellEditor {
         private JButton button;
         private String label;
@@ -404,7 +418,7 @@ public class OverzichtCijfersGUI {
             return super.stopCellEditing();
         }
     }
-
+   //Geef weergave van de button aan
     class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() {
             setOpaque(true);

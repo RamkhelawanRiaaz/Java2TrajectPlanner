@@ -66,6 +66,7 @@ public class OverzichtStudentenGUI {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.setBackground(new Color(30, 30, 30));
 
+        //Search functie
         searchField = new JTextField();
         searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         searchField.setBackground(new Color(45, 45, 45));
@@ -75,6 +76,7 @@ public class OverzichtStudentenGUI {
                 BorderFactory.createLineBorder(new Color(80, 80, 80)),
                 BorderFactory.createEmptyBorder(5, 5, 5, 5)));
 
+        //Button voor search
         JButton searchButton = new JButton("Zoeken");
         searchButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         searchButton.setBackground(new Color(0, 120, 215));
