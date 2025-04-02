@@ -14,13 +14,13 @@ import java.util.List;
 
 public class CijferVisualisatieGUI {
     private JFrame frame;
-
+    //Hoofdvenster wordt gemaakt
     public CijferVisualisatieGUI(int studentId, String studentName) {
         frame = new JFrame("models.Cijfer Visualisatie - " + studentName);
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-
+        //Api request wordt gedaan om cijfers met studentsnames op te halen
         List<Grade> studentGrades = null;
         try {
             API api_request = new API();
@@ -30,8 +30,9 @@ public class CijferVisualisatieGUI {
             return;
         }
 
+        //lege dataset wordt gemaakt voor grafiek
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
+        //Boolean gebruikt om bij te houden als er cijfers voor een student gevonden zijn
         boolean dataFound = false;
         for (Grade grade : studentGrades) {
 
@@ -51,7 +52,7 @@ public class CijferVisualisatieGUI {
             JOptionPane.showMessageDialog(frame, "Geen cijfers gevonden voor deze student.", "Fout", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
+        //Chart gemaakt
         JFreeChart chart = ChartFactory.createBarChart(
                 "Cijfers van " + studentName,
                 "Cursus",
@@ -60,9 +61,9 @@ public class CijferVisualisatieGUI {
         );
 
         CategoryPlot plot = chart.getCategoryPlot();
-
+        //Kleur van chart
         plot.getRenderer().setSeriesPaint(0, Color.BLUE);
-
+        //Positie van chart
         ChartPanel chartPanel = new ChartPanel(chart);
         frame.add(chartPanel, BorderLayout.CENTER);
 

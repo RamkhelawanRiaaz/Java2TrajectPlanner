@@ -35,7 +35,7 @@ public class OverzichtCoursesGUI {
             data[i][4] = course.getDescription();
             data[i][5] = course.getBlock();
         }
-
+        //Tabel wordt gemaakt
         courseTable = new JTable(data, columnNames);
         courseTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         courseTable.setRowHeight(30);
@@ -49,13 +49,13 @@ public class OverzichtCoursesGUI {
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
         header.setBackground(new Color(0, 120, 215));
         header.setForeground(Color.WHITE);
-
+        //Positie van tabel
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < courseTable.getColumnCount(); i++) {
             courseTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
-
+        //Scroll functie
         JScrollPane scrollPane = new JScrollPane(courseTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(new Color(30, 30, 30));

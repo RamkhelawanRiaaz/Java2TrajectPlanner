@@ -16,7 +16,7 @@ public class OverzichtSemestersGUI {
     public OverzichtSemestersGUI(List<Semester> semesters) {
         System.out.println("GUI.OverzichtSemestersGUI wordt geopend met " + semesters.size() + " semesters.");
 
-        // Maak het hoofdvenster
+        //Hoofdvenster
         frame = new JFrame("Overzicht Semesters");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(1200, 600);  // Iets groter voor een betere weergave
@@ -33,7 +33,6 @@ public class OverzichtSemestersGUI {
             data[i][0] = semester.getId();
             data[i][1] = semester.getSemester_name();
 
-            // Formatteer de cursussen als een string
             StringBuilder coursesString = new StringBuilder();
             for (Course course : semester.getCourses()) {
                 coursesString.append(course.getName()).append(" (").append(course.getCode()).append("), ");
@@ -41,7 +40,7 @@ public class OverzichtSemestersGUI {
             data[i][2] = coursesString.toString();
         }
 
-        // Maak de tabel
+        // Maakt de tabel
         semesterTable = new JTable(data, columnNames);
         semesterTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));  // Modern lettertype
         semesterTable.setRowHeight(30);  // Iets grotere rijhoogte
