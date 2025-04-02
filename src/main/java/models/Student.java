@@ -1,6 +1,7 @@
 package models;
 
 public class Student {
+    //gemaakte instance fields
     private String id;
     private String first_name;
     private String last_name;
@@ -12,7 +13,7 @@ public class Student {
     private String major;
     private int cohort;
 
-    // Getters en setters
+// Deze getters en setters zorgen ervoor dat de waarden van een Student-object veilig kunnen worden ingesteld en opgehaald.
     public String getId() { return id; }
     public void setId(String id) {
         this.id = id;

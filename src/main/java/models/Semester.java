@@ -3,11 +3,12 @@ package models;
 import java.util.List;
 
 public class Semester {
+    //gemaakte instance fields
     private String id;
     private String semester_name;
     private List<Course> courses;
 
-    // Getters en setters
+// Deze getters en setters zorgen ervoor dat de waarden van een Semester-object veilig kunnen worden ingesteld en opgehaald.
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getSemester_name() { return semester_name; }

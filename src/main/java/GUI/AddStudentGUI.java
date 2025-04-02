@@ -13,13 +13,16 @@ import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
 
 public class AddStudentGUI {
+    //Instance fields die UI-componenten voorstellen
     private JFrame frame;
     private JTextField nameField, studentNumberField, passwordField, totalECField, cohortField, majorField;
     private JComboBox<String> genderComboBox;
     private JDatePickerImpl datePicker;
     private JButton saveButton, cancelButton, clearButton;
 
+    //constructor van de class
     public AddStudentGUI() {
+        //frame aan maken
         frame = new JFrame("Student Toevoegen");
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -171,12 +174,14 @@ public class AddStudentGUI {
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 100, 20, 100));
 
+        //Opslaan knop
         saveButton = new JButton("Opslaan");
         saveButton.setFont(new Font("Arial", Font.BOLD, 20));
         styleButton(saveButton, new Color(211, 85, 0));  // Orange
         saveButton.addActionListener(e -> saveStudent());
         buttonPanel.add(saveButton);
 
+        //Annuleren knop
         cancelButton = new JButton("Annuleren");
         cancelButton.setFont(new Font("Arial", Font.BOLD, 20));
         styleButton(cancelButton, Color.RED);  // Red
@@ -185,9 +190,11 @@ public class AddStudentGUI {
 
         frame.add(mainPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
+        //om de frame zichtbaar te houden
         frame.setVisible(true);
     }
 
+    //een class aangemaakt om de style van bepaalde buttons in een keer te beheren
     private void styleButton(JButton button, Color color) {
         button.setFont(new Font("Arial", Font.BOLD,20));
         button.setPreferredSize(new Dimension(100, 30));
@@ -208,7 +215,9 @@ public class AddStudentGUI {
         });
     }
 
+    //method die in actie loopt wanneer er op de opslaan button geklickt word
     public void saveStudent() {
+        //input values hier in variabelen roepen.
         String fullName = nameField.getText().trim();
         String studentNumber = studentNumberField.getText().trim();
         String password = passwordField.getText().trim();
@@ -216,11 +225,14 @@ public class AddStudentGUI {
         String gender = genderComboBox.getSelectedItem().toString();
 
         String cohortText = cohortField.getText().trim();
+
+        //error handler als veld leeg is.
         if (cohortText.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Vul een geldig cohort in!", "Fout", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        //cohort moet binnen een bepaalde range zitten, dat hier controleren
         int cohort;
         try {
             cohort = Integer.parseInt(cohortText);
@@ -233,6 +245,8 @@ public class AddStudentGUI {
         }
 
         String major = majorField.getText().trim();
+
+        //Error handeler als major leeg is
         if (major.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Vul ook de studierichting in!", "Fout", JOptionPane.ERROR_MESSAGE);
             return;
@@ -249,6 +263,7 @@ public class AddStudentGUI {
         String lastName = (nameParts.length > 1) ? nameParts[1] : "";
 
         int totalEC;
+        // om te kijken als input een nummer is
         try {
             totalEC = Integer.parseInt(totalECText);
         } catch (NumberFormatException e) {
@@ -259,6 +274,7 @@ public class AddStudentGUI {
         SimpleDateFormat apiFormat = new SimpleDateFormat("yyyy-MM-dd");
         String birthdate = apiFormat.format(dob);
 
+        //object aan maken en data sturen naar de object.
         Student student = new Student();
         student.setFirst_name(firstName);
         student.setLast_name(lastName);
@@ -270,13 +286,17 @@ public class AddStudentGUI {
         student.setMajor(major);
         student.setCohort(cohort);
 
+        //object van API class maken
         API api_request = new API();
+
+        //Student object sturen naar API boject student
         api_request.postStudent(student);
 
         JOptionPane.showMessageDialog(frame, "Student succesvol toegevoegd!", "Succes", JOptionPane.INFORMATION_MESSAGE);
         frame.dispose();
     }
 
+    //method voor de clear button van de velden
     private void clearFields() {
         nameField.setText("");
         studentNumberField.setText("");
@@ -288,6 +308,7 @@ public class AddStudentGUI {
         datePicker.getModel().setValue(null);
     }
 
+    //main method om de class te activeren
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AddStudentGUI::new);
     }

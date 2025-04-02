@@ -10,11 +10,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class AddCijfersGUI {
+    //Instance fields die UI-componenten voorstellen
     private JFrame frame;
     private JTextField student_idField, student_numberField, exam_idField, score_valueField, score_datetimeField;
     private JButton saveButton, cancelButton, clearButton;
 
+    //constructor van de class
     public AddCijfersGUI() {
+
+        //Frame aan maken met design/ specifications
         frame = new JFrame("Cijfer Toevoegen");
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -123,9 +127,11 @@ public class AddCijfersGUI {
         frame.add(mainPanel, BorderLayout.CENTER);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
+        //om frame aan te kunnen zien
         frame.setVisible(true);
     }
 
+    //method om de buttons in een keer te stylen
     private void styleButton(JButton button, Color color) {
         button.setFont(new Font("Arial", Font.BOLD,20));
         button.setPreferredSize(new Dimension(100, 30));
@@ -146,12 +152,15 @@ public class AddCijfersGUI {
         });
     }
 
+    //method die de actie van de opslaan button uitvoert.
     private void saveCijfer() {
+        //variabelen die data ontvangen van de input fields
         String studentidText = student_idField.getText().trim();
         String student_number = student_numberField.getText().trim();
         String examIdText = exam_idField.getText().trim();
         String scoreValueText = score_valueField.getText().trim();
 
+        //leeg laten, want API bepaalt dit zelf
         int student_id = 0;
         int exam_id = 0;
         double score_value = 0.0;
@@ -174,22 +183,25 @@ public class AddCijfersGUI {
 
         String score_datetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
+        //obejct van Grade maken
         Grade cijfer = new Grade();
-
+        //values naar object sturen
         if (!studentidText.isEmpty()) cijfer.setStudent_id(student_id);
         if (!student_number.isEmpty()) cijfer.setStudent_number(student_number);
         cijfer.setExam_id(exam_id);
         cijfer.setScore_value(score_value);
         cijfer.setScore_datetime(score_datetime);
 
-        // API call
+        //api obejct aan maken
         API api_request = new API();
+        //Grade object sturen naae posCijfers method in API object.
         api_request.postCijfer(cijfer);
 
         JOptionPane.showMessageDialog(frame, "Cijfer succesvol toegevoegd!", "Succes", JOptionPane.INFORMATION_MESSAGE);
         frame.dispose();
     }
 
+    //method met fuctie van de clear buttons om velden leeg te maken
     private void clearFields() {
         student_idField.setText("");
         student_numberField.setText("");
@@ -197,6 +209,7 @@ public class AddCijfersGUI {
         score_valueField.setText("");
     }
 
+    //main method van deze class, om het te kunnen runnen/ oproepen.
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AddCijfersGUI::new);
     }

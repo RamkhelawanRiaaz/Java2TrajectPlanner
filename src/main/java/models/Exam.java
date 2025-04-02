@@ -1,6 +1,7 @@
 package models;
 
 public class Exam {
+    //gemaakte instance fields
     private int id;
     private int course_id;
     private String course_name;
@@ -8,7 +9,7 @@ public class Exam {
     private String type;
     private String date;
 
-    // Getters en setters
+// Deze getters en setters zorgen ervoor dat de waarden van een Exam-object veilig kunnen worden ingesteld en opgehaald.
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public int getCourse_id() { return course_id; }

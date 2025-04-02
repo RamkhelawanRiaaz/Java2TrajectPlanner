@@ -1,6 +1,7 @@
 package models;
 
 public class Grade {
+    //gemaakte instance fields
     private int id;
     private int student_id;
     private String student_number;
@@ -9,9 +10,9 @@ public class Grade {
     private double score_value;
     private String score_datetime;
     private String student_full_name;
-    private int semester;// Nieuw veld voor semesterinformatie
+    private int semester;
 
-    // Getters en setters
+    // Deze getters en setters zorgen ervoor dat de waarden van een Grade-object veilig kunnen worden ingesteld en opgehaald.    public int getId() { return id; }
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public int getStudent_id() { return student_id; }

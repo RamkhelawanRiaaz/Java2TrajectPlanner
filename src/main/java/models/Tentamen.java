@@ -1,12 +1,14 @@
 package models;
 
 public class Tentamen {
+    //gemaakte instance fields
     private String id;
     private int course_id;
     private String code;
     private String exam_type;
     private String exam_date;
 
+    // Deze getters en setters zorgen ervoor dat de waarden van een Tetamen-object veilig kunnen worden ingesteld en opgehaald.
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

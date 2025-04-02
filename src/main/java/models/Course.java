@@ -1,14 +1,15 @@
 package models;
 
 public class Course {
-    private String id;                // Vroeger: course_id
-    private String name;              // Vroeger: course_name
+    //gemaakte instance fields
+    private String id;
+    private String name;
     private String ec;
-    private String code;              // Vroeger: course_code
-    private String description;       // Vroeger: course_description
+    private String code;
+    private String description;
     private String block;
 
-    // Getters en setters
+// Deze getters en setters zorgen ervoor dat de waarden van een Course-object veilig kunnen worden ingesteld en opgehaald.
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

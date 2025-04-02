@@ -5,7 +5,6 @@ import models.Tentamen;
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
-
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -13,13 +12,16 @@ import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 public class AddTentamenGUI {
+    //Instance fields die UI-componenten voorstellen
     private JFrame frame;
     private JTextField course_idField, codeField;
     private JComboBox<String>  exam_typeComboBox;
     private JDatePickerImpl exam_datePicker;
     private JButton saveButton, cancelButton, clearButton;
 
+    //constructor van de class
     public AddTentamenGUI(){
+        //frame aan maken
         frame = new JFrame("Tentamen aanmaken");
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -136,6 +138,7 @@ public class AddTentamenGUI {
         frame.setVisible(true);
     }
 
+    //method om alle buttons in een keer te stylen
     private void styleButton(JButton button, Color color) {
         button.setFont(new Font("Arial", Font.BOLD, 20));
         button.setPreferredSize(new Dimension(100, 30));
@@ -157,16 +160,19 @@ public class AddTentamenGUI {
         });
     }
 
+    //method die de functie van de opslaan button uitvoert
     private void saveTentamen(){
+        //variabelen om invoer data te onvagen
         String courseIdText = course_idField.getText().trim();
         String code = codeField.getText().trim();
         String exam_type = exam_typeComboBox.getSelectedItem().toString();
 
         int course_id;
+        // error handeler, kijken als course_id een valid input is
         try {
             course_id = Integer.parseInt(courseIdText);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(frame, "models.Course ID moet een geldig getal zijn.", "Fout", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Course ID moet een geldig getal zijn.", "Fout", JOptionPane.ERROR_MESSAGE);
             return;
         }
         java.util.Date dob = (java.util.Date) exam_datePicker.getModel().getValue();
@@ -174,19 +180,26 @@ public class AddTentamenGUI {
         SimpleDateFormat apiFormat = new SimpleDateFormat("yyyy-MM-dd");
         String exam_date = apiFormat.format(dob);
 
+        //object van Tentamen maken
         Tentamen tentamen = new Tentamen();
+        //data sturen/zetten in object
         tentamen.setCourse_id(course_id);
         tentamen.setCode(code);
         tentamen.setExam_type(exam_type);
         tentamen.setExam_date(exam_date);
 
+        //object van API class maken
         API api_request = new API();
+
+        //Object Tentamen met data sturen naar postTentamen method in api object
         api_request.postTentamen(tentamen);
 
+        //message als de code goed runt met api call
         JOptionPane.showMessageDialog(frame, "Tentamen succesfol aangemaakt", "Succes", JOptionPane.INFORMATION_MESSAGE);
         frame.dispose();
     }
 
+    //method voor de de clear functie van de input velden
     public void clearFields(){
         course_idField.setText("");
         codeField.setText("");
@@ -195,6 +208,7 @@ public class AddTentamenGUI {
     }
 
 
+    //main method om class aan te maken
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AddTentamenGUI::new);
     }
