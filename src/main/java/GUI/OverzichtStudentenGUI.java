@@ -99,13 +99,15 @@ public class OverzichtStudentenGUI {
         studentTable.setSelectionBackground(new Color(0, 120, 215));
         studentTable.setSelectionForeground(Color.WHITE);
 
+
+        // mouse listener added to student table
         studentTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int row = studentTable.rowAtPoint(e.getPoint());
-                if (row >= 0) {
-                    String studentNumber = (String) studentTable.getValueAt(row, 3);
-                    showStudentScores(studentNumber);
+                int row = studentTable.rowAtPoint(e.getPoint()); // haalt de row waar de user heeft geklikt
+                if (row >= 0) { // zorgt ervoor dat het geen invalid row is
+                    String studentNumber = (String) studentTable.getValueAt(row, 3); // haalt kolom 3 van de row (stud number)
+                    showStudentScores(studentNumber); // roept method met deze value
                 }
             }
         });
@@ -115,9 +117,10 @@ public class OverzichtStudentenGUI {
         header.setBackground(new Color(0, 120, 215));
         header.setForeground(Color.WHITE);
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        // centert de text in de table
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer(); // controls how table cells are showed
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        for (int i = 0; i < studentTable.getColumnCount(); i++) {
+        for (int i = 0; i < studentTable.getColumnCount(); i++) { // zet de renderer in elke kolom
             studentTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
     }
@@ -409,7 +412,8 @@ public class OverzichtStudentenGUI {
     private Map<String, Double> calculateAveragePerCourse(String studentNumber) {
         Map<String, Double> averagePerCourse = new HashMap<>();
         try {
-            List<Grade> grades = fetchGradesForStudent(studentNumber);
+            API api = new API();
+            List<Grade> grades = api.getGrades();
 
             Map<String, List<Double>> scoresPerCourse = new HashMap<>();
             for (Grade grade : grades) {
@@ -437,7 +441,8 @@ public class OverzichtStudentenGUI {
 
     private void showStudentScores(String studentNumber) {
         try {
-            List<Grade> grades = fetchGradesForStudent(studentNumber);
+            API api = new API();
+            List<Grade> grades = api.getGrades();
             List<Exam> exams = fetchExams();
 
             // Bereken gemiddelden per vak
@@ -642,22 +647,7 @@ public class OverzichtStudentenGUI {
     //APK methode
 
 
-    private List<Grade> fetchGradesForStudent(String studentNumber) throws Exception {
-        String apiUrl = API_BASE_URL + "scores/" + studentNumber.replace("/", "-");
-        URL url = new URL(apiUrl);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-        reader.close();
-
-        return new Gson().fromJson(response.toString(), new TypeToken<List<Grade>>(){}.getType());
-    }
 
     private List<Exam> fetchExams() throws Exception {
         String apiUrl = API_BASE_URL + "exams";
