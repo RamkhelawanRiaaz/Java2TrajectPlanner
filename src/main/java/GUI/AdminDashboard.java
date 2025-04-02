@@ -52,7 +52,7 @@ public class AdminDashboard {
         westPanel.add(closeButton);
         topBarPanel.add(westPanel, BorderLayout.WEST);
 
-        // Uitleg button
+        // Uitleg button dat explain() roept
         JButton uitlegButton = new JButton("Hulp en Uitleg");
         uitlegButton.addActionListener(new ActionListener() {
             @Override
@@ -63,15 +63,13 @@ public class AdminDashboard {
         westPanel.add(uitlegButton);
         topBarPanel.add(westPanel, BorderLayout.WEST);
 
-//        frame.add(topBarPanel, BorderLayout.NORTH);
-
         // Titel in het midden (Oranje)
         JLabel titleLabel = new JLabel("Studenten Administratie", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24)); // Grotere tekst
         titleLabel.setForeground(new Color(255, 165, 0)); // Oranje
         topBarPanel.add(titleLabel, BorderLayout.CENTER);
 
-        // Leden button (rechts)
+        // Leden button dat groepsleden() oproept
         JButton ledenButton = new JButton("Groepsleden");
         ledenButton.addActionListener(new ActionListener() {
             @Override
@@ -82,7 +80,7 @@ public class AdminDashboard {
         eastPanel.add(ledenButton);
         topBarPanel.add(eastPanel, BorderLayout.EAST);
 
-        // Uitlogknop (rechtsboven)
+        // Uitlogknop (rechtsboven) dat logout() oproept
         JButton logoutButton = createStyledButton("Uitloggen", new Color(0, 100, 0), Color.WHITE); // Green
         logoutButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
         logoutButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
@@ -108,18 +106,22 @@ public class AdminDashboard {
 
         // Bovenste rij (Toevoegen knoppen)
         JPanel topRowPanel = createButtonPanel();
+
+        // add student button dat AddStudentGUI opent
         JButton addStudentButton = createStyledButton("Student Toevoegen", new Color(0, 29, 109), Color.WHITE); // #001d6d
         addStudentButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         addStudentButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
         addStudentButton.addActionListener(e -> new AddStudentGUI()); // Open GUI.AddStudentGUI
         topRowPanel.add(addStudentButton);
 
+        // add tentamen button dat AddTentamenGUI opent
         JButton addSubjectButton = createStyledButton("Tentamen Toevoegen", new Color(211, 85, 0), Color.WHITE); // #d35500
         addSubjectButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         addSubjectButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
         addSubjectButton.addActionListener(e -> new AddTentamenGUI()); // Open GUI.AddVakGUI
         topRowPanel.add(addSubjectButton);
 
+        // add grade button dat AddGradeGUI opent
         JButton addGradeButton = createStyledButton("Cijfer Toevoegen", new Color(64, 171, 254), Color.WHITE); // #40abfe
         addGradeButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         addGradeButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
@@ -138,6 +140,8 @@ public class AdminDashboard {
 
         // Middelste rij (Overzicht knoppen)
         JPanel middleRowPanel = createButtonPanel();
+
+        // stud overzicht roept getStudent() van API class; slaat op in List; opent OverzichtStudentsGUI
         JButton overviewStudentsButton = createStyledButton("Overzicht Studenten", new Color(0, 29, 109), Color.WHITE); // #001d6d
         overviewStudentsButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         overviewStudentsButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
@@ -152,12 +156,14 @@ public class AdminDashboard {
         });
         middleRowPanel.add(overviewStudentsButton);
 
+        // tenta overzicht opent OverzichtTentamenGUI
         JButton overviewSubjectsButton = createStyledButton("Tentamen Overzichten", new Color(211, 85, 0), Color.WHITE); // #d35500
         overviewSubjectsButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         overviewSubjectsButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
         overviewSubjectsButton.addActionListener(e -> new OverzichtTentamensGUI()); // Open OverzichtTentamenGUI
         middleRowPanel.add(overviewSubjectsButton);
 
+        // grade w names overzicht roept method van API class; slaat op in List; opent OverzichtCijfersGUI()
         JButton overviewGradesButton = createStyledButton("Overzicht Cijfers", new Color(64, 171, 254), Color.WHITE); // #40abfe
         overviewGradesButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         overviewGradesButton.addActionListener(e -> {
@@ -178,6 +184,8 @@ public class AdminDashboard {
 
         // Derde rij (Cohorten en Semesters)
         JPanel bottomRowPanel = createButtonPanel();
+
+        // courses overzicht roept getCourses() van API class; slaat op in List; opent OverzichtCoursesGUI
         JButton overviewCoursesButton = createStyledButton("Overzicht Studieonderdelen", new Color(138, 43, 226), Color.WHITE);
         overviewCoursesButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         overviewCoursesButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
@@ -192,6 +200,7 @@ public class AdminDashboard {
         });
         bottomRowPanel.add(overviewCoursesButton);
 
+        // sem overzicht roept getSemesters() van API class; slaat op in List; opent OverzichtSemestersGUI
         JButton overviewSemestersButton = createStyledButton("Overzicht Semesters", new Color(255, 105, 180), Color.WHITE); // #FF69B4 (Roze)
         overviewSemestersButton.setPreferredSize(new Dimension(100, 25)); // Kleinere knop
         overviewSemestersButton.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
@@ -213,6 +222,9 @@ public class AdminDashboard {
         frame.setVisible(true);
     }
 
+    // methods die boeven opgeroepen worden
+
+    // opgeroepen door uitleg button
     public void explain() { // RS
         String uitleg = "Welkom bij de Studenten en Cijfers Administratie applicatie!\n";
         uitleg += "Hier vindt u een overzicht van de beschikbare functionaliteiten.\n\n";
@@ -230,6 +242,7 @@ public class AdminDashboard {
         JOptionPane.showMessageDialog(frame, uitleg, "Uitleg", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    // opgeroepen door leden button
     public void groepsleden() {
         String uitleg = "Ons team bestaat uit:\n";
         uitleg += "- Ramdhiansing Shakeel - SE/1123/067\n";
@@ -239,6 +252,7 @@ public class AdminDashboard {
         JOptionPane.showMessageDialog(frame, uitleg, "Uitleg", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    // snellere manier om meerdere similar panels te maken: toprow-, middle- en bottompanel
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(1, 0, 5, 5)); // Kleinere ruimte tussen knoppen
@@ -246,6 +260,7 @@ public class AdminDashboard {
         return panel;
     }
 
+    // voor button styling met hover kleur
     private JButton createStyledButton(String text, Color backgroundColor, Color foregroundColor) {
         JButton button = new JButton(text);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14)); // Grotere tekst
@@ -270,10 +285,7 @@ public class AdminDashboard {
         return button;
     }
 
-//    private void showOverview(String overviewType) {
-//        JOptionPane.showMessageDialog(frame, "Overzicht van: " + overviewType);
-//    }
-
+    // opgeroepen door sluiten button. confirmation message met yes or no; yes: frame close
     private void confirmExit() {
         int response = JOptionPane.showConfirmDialog(frame, "Weet u zeker dat u het programma wilt afsluiten?", "Bevestiging", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (response == JOptionPane.YES_OPTION) {
@@ -281,6 +293,7 @@ public class AdminDashboard {
         }
     }
 
+    // opgeroepen door logout button; confirmation message met yes or no; yes: frame close; adminDashboard open
     private void logout() {
         int response = JOptionPane.showConfirmDialog(frame, "Weet u zeker dat u wilt uitloggen?", "Bevestiging", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         if (response == JOptionPane.YES_OPTION) {
@@ -292,5 +305,5 @@ public class AdminDashboard {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(AdminDashboard::new);
-    } // creates new admin dashboar window
+    } // creates new admin dashboard window
 }

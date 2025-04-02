@@ -2,9 +2,9 @@ package API_calls;
 import models.*;
 
 import java.util.List;
-
+// interface: blueprint die de child classes moeten volgen
 public interface SchoolAdmin {
-
+// get methods: om data op te halen
     List<Student> getStudents() throws Exception;
 
     List<Semester> getSemesters() throws Exception;
@@ -17,6 +17,7 @@ public interface SchoolAdmin {
 
     List<Tentamen> getTentamens() throws Exception;
 
+    // post, update, delete methods
     void postStudent(Student student);
 
     void updateStudent(Student student) throws Exception;

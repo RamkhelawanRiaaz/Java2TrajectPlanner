@@ -7,12 +7,15 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 public class LoginScreen {
+    // instance variables
     private JFrame loginFrame;
     private JTextField usernameField;
     private JPasswordField passwordField;
 
+    // static variable dat checkt of user ingelogd is
     public static boolean isLoggedInAsAdmin = false;
 
+    // constructor die method oproept
     public LoginScreen() {
         createAndShowGUI();
     }
@@ -82,12 +85,14 @@ public class LoginScreen {
         gbc.insets = new Insets(10, 10, 10, 10); // padding/spacing tussen components
         gbc.fill = GridBagConstraints.HORIZONTAL; // expands width
 
+        // voor display
         gbc.gridx = 0;
         gbc.gridy = 0;
         JLabel usernameLabel = new JLabel("Gebruikersnaam:");
         usernameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         formPanel.add(usernameLabel, gbc);
 
+        // voor invullen
         gbc.gridx = 1;
         usernameField = new JTextField(15);
         usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -111,6 +116,8 @@ public class LoginScreen {
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
+
+        // login button
         JButton loginButton = new JButton("Inloggen");
         loginButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
         loginButton.setBackground(new Color(211, 85, 0));
@@ -120,6 +127,7 @@ public class LoginScreen {
         buttonPanel.add(loginButton);
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
+        // button krijgt actionListener om een actie uit te voeren
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
